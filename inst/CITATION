@@ -1,0 +1,19 @@
+citHeader("To cite jrt in publications use:")
+
+citEntry(entry = "Article",
+  title        = "Judge Response Theory? A call to upgrade our psychometrical account of creativity judgements
+",
+  author       = personList(as.person("Nils Myszkowski"),
+                   as.person("Martin Storme")),
+  journal      = "Psychology of Aesthetics, Creativity and the Arts",
+  year         = "in press",
+  volume       = "",
+  number       = "",
+  pages        = "",
+  url          = "",
+
+  textVersion  =
+  paste("Myszkowski, N. & Storme, M. (in press).",
+        "Judge Response Theory? A call to upgrade our psychometrical account of creativity judgements.",
+        "Psychology of Aesthetics, Creativity and the Arts.")
+)

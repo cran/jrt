@@ -1,0 +1,451 @@
+---
+title: "Using `jrt`"
+author: "Nils Myszkowski, PhD"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using jrt}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  fig.height = 5,
+	fig.width = 7.3,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This package provides user-friendly functions designed for the easy implementation of Item-Response Theory (IRT) models and scoring with judgment data. Although it can be used in a variety of contexts, the original motivation for implementation is to facilitate use for creativity researchers.
+
+## Disclaimer
+
+`jrt` is not an estimation package, it provides wrapper functions that call estimation packages and extract/report/plot information from them. At this stage, `jrt` uses the (excellent) package `mirt` (Chalmers, 2012) as its only IRT engine. Thus, if you use `jrt` for your research, please ensure to cite `mirt` ([https://www.jstatsoft.org/article/view/v048i06](https://www.jstatsoft.org/article/view/v048i06])) as the estimation package/engine.
+
+* Chalmers, R. P. (2012). mirt: A multidimensional item response theory package for the R environment. *Journal of Statistical Software, 48*(6), 1–29.
+
+We also encourage that you cite `jrt` – especially if you use the plots or the automatic model selection. This would be done with:
+
+* Myszkowski, N. & Storme, M. (in press). Judge Response Theory ? A call to upgrade our psychometrical account of creativity judgments. *Psychology of Aesthetics, Creativity and the Arts.*
+
+Ok now let's get started...
+
+## What the data should look like
+
+Then, a judgment `data.frame` would be provided to the function `jrt`. Here we generated one.
+
+```{r include=FALSE}
+set.seed(123)
+N <- 300
+judges <- 6
+diffs <- t(apply(matrix(runif(judges*4, .4, 5), judges), 1, cumsum))
+d <- -(diffs - rowMeans(diffs)) + stats::rnorm(judges, mean = 0, sd= 1)
+data <- mirt::simdata(matrix(rlnorm(judges,1,0)), d, N,
+itemtype = 'graded') + 1
+colnames(data) <- paste("Judge_", 1:dim(data)[2], sep = "")
+data <- as.data.frame(data)
+```
+
+```{r}
+head(data)
+```
+
+`jrt` is in development and these features will hopefully appear soon (check back !), but in this release:
+
+- Your data should be ordinal/polytomous exclusively (although the plotting functions also work with mirt fitted binary and nominal models)
+- Your data should be assumed unidimensional (one latent ability predicts the judgments)
+- Your judgments should be assumed conditionnally independent (the judgements are only related to one another because they are explained by the same latent)
+- Your data should not include impossible values (so check that first)
+- Your data only has 2 facets (e.g. products by judges)
+
+I know, that's a lot that you can't do...but this covers the typical cases, at least for the Consensual Assessment Technique -- which is why it was originally created.
+
+## Model fitting, scoring and statistics with `jrt()`
+
+You will first want to first load the library.
+
+```{r}
+library(jrt)
+```
+
+The main function of the `jrt` package is `jrt()`. By default, this function will:
+
+- Fit the most common and available IRT models for ordinal data
+- Select automatically the best fitting model (based on an information criterion, by default the AIC corrected)
+- Report a lot of useful indices of reliability (from IRT, CTT and the inter-rater reliability literature) and plot the Judge Category Curves and Total Information Function plot (which shows the levels of $\theta$ at which the set of judgements is the most informative/reliable) -- we'll see how to customize them later!
+- Make the factor scores and standard errors readily accessible in the `@factor.scores` (or `@output.data`) slot of the `jrt` object.
+
+Let's do it!
+
+- Select, fit and return stats with information function. We're storing the output in an object (`fit`) to do more after. Note: There's a progress bar by default, but it takes space in the vignette, so I'll remove it here with `progress.bar = F`.
+
+```{r}
+fit <- jrt(data, progress.bar = F)
+```
+
+Of course there's more available here than one would report. If using IRT scoring (which is the main purpose of this package), we recommend reporting what IRT model was selected, along with IRT indices primarily, since the scoring is based on the estimation of the $\theta$ abilities. In this case typically what is reported in the empirical reliability (here `r round(fit@empirical.reliability, 3)`), which is the estimate of the reliability of the observations in the sample. It can be interpreted similarily as other more traditionnal indices of reliability (like Cronbach's $\alpha$).
+
+- Doing the same thing without messages
+
+```{r}
+fit <- jrt(data, silent = T)
+```
+
+- Selecting the model a priori
+
+One may of course select a model based on assumptions on the data rather than on model fit comparisons. This is done through using the name of a model as an imput of the argument `irt.model` of the `jrt()` function. This bypasses the automatic model selection stage.
+
+```{r}
+fit <- jrt(data, "PCM")
+```
+
+See the documentation for a list of available models. Most models are directly those of `mirt`. Others are versions of the Graded Response Model or Generalized Partial Credit Model that are constrained in various ways (equal discriminations and/or equal category structures) through the `mirt.model()` function of `mirt`.
+
+Note that they can also be called by their full names (e.g. `jrt(data, "Graded Response Model")`).
+
+
+- Extract the factor scores with `@factor.scores`.
+
+```{r}
+head(fit@factor.scores)
+```
+
+Note : If you want a more complete output with the original data, use `@output.data`. If there were missing data, `@output.data` also appends imputed data.
+
+```{r}
+head(fit@output.data)
+```
+
+
+
+## Judge Category Curves
+
+Judge characteristics can be inspected with Judge Category Curve (JCC) plots. They are computed with the function `jcc.plot()`.
+
+A basic example for Judge 3...
+
+```{r}
+jcc.plot(fit, judge = 3)
+```
+
+
+Now of course, there are many options, but a few things that you could try:
+
+- Plot the category curves of all judges by using `judge = "all"` or simply removing the `judge` argument (note that you can change the number of columns or rows, see the documentation for these advanced options).
+
+```{r}
+jcc.plot(fit)
+```
+
+
+- Plot the category curves of a vector of judges by providing a vector of judge numbers. For example here for judges 1 and 6.
+
+```{r}
+jcc.plot(fit, judge = c(1,6))
+```
+
+- Change the layout by providing a number of columns or rows desired (not both, they may conflict):
+
+```{r}
+jcc.plot(fit, facet.cols = 2)
+```
+
+
+- Plot the category curves in black and white with `greyscale = TRUE`...
+
+```{r}
+jcc.plot(fit, 1, greyscale = T)
+```
+
+
+- Adding the reliability overlay with `overlay.reliability = TRUE` (reliability is scaled from $0$ to $1$, making it easier to read with probabilities than information)
+
+```{r}
+jcc.plot(fit, 1, overlay.reliability = TRUE)
+```
+
+- Using a legend instead of labels on the curves with `labelled = FALSE`.
+
+```{r}
+jcc.plot(fit, overlay.reliability = T, labelled = F)
+```
+
+- Repositionning the legend
+
+```{r}
+jcc.plot(fit, overlay.reliability = T, labelled = F, legend.position = "bottom")
+```
+
+
+- Changing the name of the judges with `column.names = "Expert"` (or whatever you want)
+
+```{r}
+jcc.plot(fit, 2, column.names = "Expert")
+```
+
+- Remove/change the title of the plot with `title`
+
+```{r}
+jcc.plot(fit, 1, title = "")
+```
+
+- Change the x-axis $\theta$ limits with `theta.span = 5` (sets the maximum, the minimum is automatically adjusted)
+
+```{r}
+jcc.plot(fit, 1, theta.span = 5)
+```
+
+- Change the colors of the curves with `color.palette` (uses the RColorBrewer palettes in `ggplot2`), the background colors with `theme` (uses the `ggplot2` themes, use `bw`, `light`, `grey`, etc.), and the line size with `line.width`.
+
+```{r}
+jcc.plot(fit, 1, color.palette = "Dark2", theme = "classic", line.width = 1.5, font.family = "serif", overlay.reliability = T, name.for.reliability = "Reliability")
+```
+
+or
+
+```{r}
+jcc.plot(fit, 1, color.palette = "Blues", theme = "grey", line.width = 3, labelled = F)
+```
+
+
+I've also integrated the colors of the ggsci package (`npg`, `aaas`, `nejm`, `lancet`, `jama`, `jco`, `D3`, `locuszoom`, `igv`, `uchicago`, `startrek`, `tron`, `futurama`), but be careful, not all may have sufficient color values!
+
+```{r}
+jcc.plot(fit, 1, color.palette = "aaas", overlay.reliability = T)
+```
+
+## Information Plots
+
+The `jrt()` function already plots an information plot, but information plots can be called (as well as variants of information, like standard error and reliability), with the `info.plot()` function.
+
+- An example for judge 1:
+
+```{r}
+info.plot(fit, 1)
+```
+
+- For the entire set of judges, just remove the `judge` argument.
+
+```{r}
+info.plot(fit)
+```
+
+- You can switch to standard errors or reliability with the `type` argument.
+
+(`type = "reliability"` also works)
+
+```{r}
+info.plot(fit, type = "r")
+```
+
+
+```{r}
+info.plot(fit, type = "se")
+```
+
+(`type = "Standard Error"` also works)
+
+
+- Coerce y-axis limits by passing a numeric vector with the minimum and maximum.
+
+```{r}
+info.plot(fit, type = "r", y.limits = c(0,1))
+```
+
+- Use `y.line` to add a horizontal line, for example for a .70 threshold, usual for reliability.
+
+```{r}
+info.plot(fit, type = "r", y.line = .70)
+```
+
+- You can plot information with reliability (`type = ir`) or with standard error (`type = ise`).
+
+```{r}
+info.plot(fit, type = "ise")
+```
+
+With a threshold value
+
+```{r}
+info.plot(fit, type = "ir", y.line = .7)
+```
+
+And here again, themes are available.
+
+```{r}
+info.plot(fit, type = "ir", y.line = .7, color.palette = "Dark2")
+```
+
+Similar customizing options than `jcc.plot()` are available, here is an example:
+
+```{r}
+info.plot(fit, 1, "ir",
+          column.names = "Rater",
+          theta.span = 5,
+          theme = "classic",
+          line.width = 2,
+          greyscale = T)
+```
+
+
+
+
+
+## Dealing with unobserved categories and Rating Scale Models
+
+Some polytomous IRT models (namely, the Rating Scale models) assume that judges all have the same response category structure, and so they cannot be estimated if all judges do not have the same observed categories. So, if your data includes judges with unobserved categories, how does `jrt` deal with that?
+
+For the automatic model selection stage, `jrt` will by default keep all judges but, if there are judges with unobserved categories, it will not fit the Rating Scale and Generalized Rating Scale models. You will be notified in the output.
+
+
+```{r include=FALSE}
+set.seed(123)
+N <- 100
+judges <- 8
+diffs <- t(apply(matrix(runif(judges*4, .4, 5), judges), 1, cumsum))
+d <- -(diffs - rowMeans(diffs)) + stats::rnorm(judges, mean = 0, sd= 1)
+data <- mirt::simdata(matrix(rlnorm(judges,1,0)), d, N,
+itemtype = 'graded') + 1
+colnames(data) <- paste("Judge_", 1:dim(data)[2], sep = "")
+
+```
+
+*Note : The possible values are automatically detected, but it can be bypassed with the `possible.values` argument.*
+
+
+
+Now, if you want instead to remove the incomplete judges to compare the models, set `remove.judges.with.unobserved.categories = TRUE` (it's a long name for an argument, so if you have a better idea of a clear but shorter name shoot me an email!). All models will be compared with only the complete judges. 
+
+After this stage:
+
+- if the model selected is of the Rating Scale type, then only complete judges will be kept to fit the selected model
+- if another model is selected, then all judges will be used to fit the selected model (this is the case of the example below).
+
+An example with the same data as above but with `remove.judges.with.unobserved.categories = TRUE`.
+
+```{r}
+fit <- jrt(data, 
+           irt.model = "RSM",
+           remove.judges.with.unobserved.categories = T,
+           additional.stats = F, #making the output cleaner for the example
+           progress.bar = F) #removing the progress bar for the example
+```
+
+
+
+## Getting additional statistics
+
+Additionnal statistics may be computed with `additional.stats = TRUE`.
+
+```{r}
+fit <- jrt(data,
+           additional.stats = T,
+           progress.bar = F) #removing the progress bar for the example
+```
+
+
+
+
+
+## Using the fitted object
+
+The fitted model is stored in the slot `@mirt.object`, so additionnal functions from `mirt` can be easily used.
+
+For example:
+
+```{r}
+# Get more fit indices and compare models
+mirt::anova(fit@mirt.object, verbose = F)
+# Get total information for a given vector of attributes
+mirt::testinfo(fit@mirt.object, Theta = seq(from = -3, to = 3, by = 1))
+# Get the test information for case 1
+mirt::testinfo(fit@mirt.object, Theta = fit@factor.scores.vector[1])
+# Get marginal reliability for high abilities – using a Normal(1,1) prior
+mirt::marginal_rxx(fit@mirt.object,
+                   density = function(x) {dnorm(x, mean = 1, sd = 1)})
+```
+
+
+
+## Dealing with missing data
+
+For this example, let's add partially missing data...
+
+```{r}
+data[1, 1] <- NA # Add missing data for case 1 / judge 1 (partial missing)
+```
+
+...and completely missing case data.
+
+```{r}
+data[3,] <- NA # All case 3 is missing (complete missing)
+```
+
+The data now looks like this:
+
+```{r}
+head(data)
+```
+
+`jrt` will be default impute missing data for partially missing data, but can be easily retrieved.
+
+```{r}
+fit <- jrt(data, irt.model = "PCM", silent = T) #fit model
+```
+
+The `fit@output.data` contains both the original data and the data with imputation (variable names are tagged "original"" and "imputed"), as well as the factor scores.
+
+To retrieved them separately, the imputed data can be retrieved with `fit@imputed.data`, the original data is in `fit@input.data` and the factor scores can be retrieved like described previously.
+
+
+## Just using `jrt` for plotting?
+
+You may want to use `jrt` as a plotting device only. That's ok, because `jrt` plotting functions will accept `mirt` objects as input. They should be detected automatically as such.
+
+Let's fit a Generalized Partial Credit Model with `mirt` for this example.
+
+```{r}
+fit <- mirt::mirt(data = mirt::Science, 
+                  model = 1, 
+                  itemtype = "gpcm",
+                  verbose = F)
+```
+
+Now `jcc.plot()` can plot the category curves. Note that the default colmun names is now "Item".
+
+```{r}
+jcc.plot(fit)
+```
+
+For the information plot:
+
+```{r}
+info.plot(fit)
+```
+
+For convenience the argumemnt `item` can be used instead of `judge` in both plotting functions:
+
+```{r}
+jcc.plot(fit, item = 3)
+```
+
+Even though it isn't its primary purpose, `jrt` can also plot binary item response functions. They will be automatically detected and the plot will be named accordingly.
+
+```{r}
+# SAT data from mirt
+## Convert to binary
+data <- mirt::key2binary(mirt::SAT12,
+    key = c(1,4,5,2,3,1,2,1,3,1,2,4,2,1,5,3,4,4,1,4,3,3,4,1,3,5,1,3,1,5,4,5))
+## Fit 2PL model in mirt
+fit <- mirt::mirt(data = data, model = 1, itemtype = "2PL", verbose = F)
+## Plotting an item response function
+jcc.plot(fit, item = 2)
+## Plotting the item response functions of the first 24 items with a larger theta range
+jcc.plot(fit, facet.cols = 4, item = 1:12, theta.span = 5)
+```
+
+
+
+
