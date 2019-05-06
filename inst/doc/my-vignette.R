@@ -6,16 +6,8 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ----include=FALSE-------------------------------------------------------
-set.seed(123)
-N <- 300
-judges <- 6
-diffs <- t(apply(matrix(runif(judges*4, .4, 5), judges), 1, cumsum))
-d <- -(diffs - rowMeans(diffs)) + stats::rnorm(judges, mean = 0, sd= 1)
-data <- mirt::simdata(matrix(rlnorm(judges,1,0)), d, N,
-itemtype = 'graded') + 1
-colnames(data) <- paste("Judge_", 1:dim(data)[2], sep = "")
-data <- as.data.frame(data)
+## ----include=TRUE--------------------------------------------------------
+data <- jrt::ratings
 
 ## ------------------------------------------------------------------------
 head(data)
@@ -113,7 +105,8 @@ info.plot(fit, 1, "ir",
           theta.span = 5,
           theme = "classic",
           line.width = 2,
-          greyscale = T)
+          greyscale = T,
+          font.family = "serif")
 
 ## ----include=FALSE-------------------------------------------------------
 set.seed(123)
@@ -185,6 +178,6 @@ data <- mirt::key2binary(mirt::SAT12,
 fit <- mirt::mirt(data = data, model = 1, itemtype = "2PL", verbose = F)
 ## Plotting an item response function
 jcc.plot(fit, item = 2)
-## Plotting the item response functions of the first 24 items with a larger theta range
+## Plotting the item response functions of the first 12 items with a larger theta range
 jcc.plot(fit, facet.cols = 4, item = 1:12, theta.span = 5)
 

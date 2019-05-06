@@ -14,7 +14,8 @@ jrt(data, irt.model = "auto", summary = T,
   estimation.algorithm = "EM", status.verbose = F,
   estimation.package.warnings = F, digits = 3, plots = T,
   greyscale = F, progress.bar = T, method.item.fit = "X2",
-  select.variables.that.contain = NULL, silent = F, debug = F)
+  select.variables.that.contain = NULL, silent = F, show.calls = F,
+  debug = F)
 }
 \arguments{
 \item{data}{A dataframe or matrix including the judgments to be scored. Note
@@ -146,6 +147,8 @@ This uses other parameters (\code{progress.bar}, \code{estimation.package.warnin
 \code{plots}, \code{summary}) in order to return a silent output.
 Useful if only using the package for factor scoring, for example.}
 
+\item{show.calls}{A logical to report the calls made to fit the different models. This is meant as a didactic options for users who may be interested in switching over to \code{mirt} directly. Defaults to \code{FALSE}.}
+
 \item{debug}{A logical to report debug messages (used in development).
 Defaults to \code{FALSE}.}
 }
@@ -163,18 +166,8 @@ This function automatically selects appropriate polytomous IRT
 }
 \examples{
 
-# Simulate data with package mirt
-# (6 judges, 300 productions, ordinal ratings from 1 to 5)
-set.seed(123)
-N <- 300
-judges <- 6
-diffs <- t(apply(matrix(runif(judges*4, .4, 5), judges), 1, cumsum))
-d <- -(diffs - rowMeans(diffs)) + stats::rnorm(judges, mean = 0, sd= 1)
-data <- mirt::simdata(matrix(rlnorm(judges,1,0)), d, N,
-itemtype = 'graded') + 1
-colnames(data) <- paste("Judge_", 1:dim(data)[2], sep = "")
-data <- as.data.frame(data)
-### --> See mirt documentation for details
+# Load dataset
+data <- jrt::ratings
 
 # Fit models
 fit <- jrt(data,
@@ -193,5 +186,5 @@ Chalmers, R., P. (2012). mirt: A Multidimensional Item Response
 Theory Package for the R Environment. \emph{Journal of Statistical Software,
 48}(6), 1-29. \doi{10.18637/jss.v048.i06}
 
-Myszkowski & Storme (in press). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts.} \doi{10.17605/OSF.IO/9WC34}
+Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
 }

@@ -35,7 +35,7 @@
 #' Chalmers, R., P. (2012). mirt: A Multidimensional Item Response Theory
 #' Package for the R Environment. \emph{Journal of Statistical Software, 48}(6), 1-29.
 #' \doi{10.18637/jss.v048.i06}
-#' @references Myszkowski & Storme (in press). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts.} \doi{10.17605/OSF.IO/9WC34}
+#' @references Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
 #' @return A plot of the category curves.
 #' @import directlabels
 #' @import mirt
@@ -49,18 +49,8 @@
 #' @examples
 #'
 #'
-#' # Simulate data with package mirt
-#' # (6 judges, 300 productions, ordinal ratings from 1 to 5)
-#' set.seed(123)
-#' N <- 300
-#' judges <- 6
-#' diffs <- t(apply(matrix(runif(judges*4, .4, 5), judges), 1, cumsum))
-#' d <- -(diffs - rowMeans(diffs)) + stats::rnorm(judges, mean = 0, sd= 1)
-#' data <- mirt::simdata(matrix(rlnorm(judges,1,0)), d, N,
-#' itemtype = 'graded') + 1
-#' colnames(data) <- paste("Judge_", 1:dim(data)[2], sep = "")
-#' data <- as.data.frame(data)
-#' ### --> See mirt documentation for details
+#' # Load dataset
+#' data <- jrt::ratings
 #'
 #' # Fit model
 #' fit <- jrt(data, irt.model = "PCM")

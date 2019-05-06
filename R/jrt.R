@@ -114,6 +114,7 @@
 #' This uses other parameters (\code{progress.bar}, \code{estimation.package.warnings},
 #' \code{plots}, \code{summary}) in order to return a silent output.
 #' Useful if only using the package for factor scoring, for example.
+#' @param show.calls A logical to report the calls made to fit the different models. This is meant as a didactic options for users who may be interested in switching over to \code{mirt} directly. Defaults to \code{FALSE}.
 #' @param debug A logical to report debug messages (used in development).
 #' Defaults to \code{FALSE}.
 #' @return An object of S4-class \code{jrt}. The factor scores can be accessed
@@ -122,25 +123,15 @@
 #' @references Chalmers, R., P. (2012). mirt: A Multidimensional Item Response
 #' Theory Package for the R Environment. \emph{Journal of Statistical Software,
 #' 48}(6), 1-29. \doi{10.18637/jss.v048.i06}
-#' @references Myszkowski & Storme (in press). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts.} \doi{10.17605/OSF.IO/9WC34}
+#' @references Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
 #'
 #' @import mirt
 #' @importClassesFrom mirt SingleGroupClass
 #' @import methods
 #' @examples
 #'
-#' # Simulate data with package mirt
-#' # (6 judges, 300 productions, ordinal ratings from 1 to 5)
-#' set.seed(123)
-#' N <- 300
-#' judges <- 6
-#' diffs <- t(apply(matrix(runif(judges*4, .4, 5), judges), 1, cumsum))
-#' d <- -(diffs - rowMeans(diffs)) + stats::rnorm(judges, mean = 0, sd= 1)
-#' data <- mirt::simdata(matrix(rlnorm(judges,1,0)), d, N,
-#' itemtype = 'graded') + 1
-#' colnames(data) <- paste("Judge_", 1:dim(data)[2], sep = "")
-#' data <- as.data.frame(data)
-#' ### --> See mirt documentation for details
+#' # Load dataset
+#' data <- jrt::ratings
 #'
 #' # Fit models
 #' fit <- jrt(data,
@@ -177,6 +168,7 @@ jrt <- function(data,
                 method.item.fit = "X2",
                 select.variables.that.contain = NULL,
                 silent = F,
+                show.calls = F,
                 debug = F) {
 
 
@@ -228,11 +220,6 @@ jrt <- function(data,
   ## Create an index variable to merge later
   index.vector <- seq(seq(1, dim(data)[1]))
   original.data.as.data.frame$index.for.jrt <- index.vector
-
-
-
-
-
 
 
 
@@ -475,6 +462,19 @@ if (progress.bar == T) {
     }
 
 
+    # To show the model calls
+    if (show.calls == TRUE) {
+      if (is.character(unlist(model.list[i])) == FALSE) {
+        character.for.structural.model <- ""
+      } else {character.for.structural.model <- "\""}
+      message(paste0("\n",
+                     "Call for ",irt.modelvectorwellnamed[i], "\n",
+                     "mirt::mirt(data = data, ",
+                     "itemtype = \"",irt.modelvector[i],"\", ",
+                     "model = ", character.for.structural.model, unlist(model.list[i]), character.for.structural.model,")"))
+    }
+
+
 
     fit <- mirt::mirt(data = datainmodelcomparison,
                       model = unlist(model.list[i]),
@@ -535,14 +535,36 @@ if (summary == T) {
 }
 
 
+#Build a data.frame with comprison statistics and model names
+fit.indices.data.frame <- data.frame(cbind(irt.modelvectorwellnamed, comparisonstatistic))
+
+#Compute delta AIC
+delta.ic <- comparisonstatistic-min(comparisonstatistic)
 
 
 
-  positionofbestfittingmodelinlist <- which.min(comparisonstatistic)
+#Compute relative likelihood L
+rel.likelihood <- exp((-1/2)*delta.ic)
+
+# Compute sum of relative likelihoods (for denominator)
+sum.rel.likelihood <- sum(rel.likelihood)
+
+#Compute Akaike weights
+fit.indices.data.frame$Weights <- rel.likelihood/sum(rel.likelihood)
+
+#Rename columns of data.frame
+colnames(fit.indices.data.frame) <- c("Model", fullnameofcomparisonstatistic, "Weights")
+
+
+
+
+
+
+positionofbestfittingmodelinlist <- which.min(comparisonstatistic)
 
   if (summary == T) {
   for (i in 1:length(irt.modelvectorwellnamed)) {
-    message(paste(sep=""), shortnameofcomparisonstatistic, " for ",  irt.modelvectorwellnamed[i], ": ",round(comparisonstatistic[i], digits))
+    message(paste(sep=""), shortnameofcomparisonstatistic, " for ",  irt.modelvectorwellnamed[i], ": ",round(comparisonstatistic[i], digits), " | Model weight: ", sprintf("%.3f", round(fit.indices.data.frame$Weights[i], digits)))
   }
 
   message(paste(" -> The best fitting model is the ",irt.modelvectorwellnamed[positionofbestfittingmodelinlist] ,".\n",sep = ""))
@@ -732,6 +754,17 @@ if (summary == T) {
                    "DEBUG| itemtype= ", irt.modelnameformirt,"\n\n"))
   }
 
+  # To show the model call
+  if (show.calls == TRUE) {
+    if (is.numeric(structural.model)==T) {
+      character.for.structural.model <- ""
+    } else {character.for.structural.model <- "\""}
+    message(paste0("\n",
+                   "Call for selected model:\n","mirt::mirt(data = data, ",
+                   "itemtype = \"",irt.modelnameformirt,"\", ",
+                   "model = ", character.for.structural.model, structural.model, character.for.structural.model,")"))
+  }
+
 
 
   #set.seed(123)
@@ -760,6 +793,8 @@ if (summary == T) {
   modelBIC <- model@Fit$BIC
   modelSABIC <- model@Fit$BIC
   modelDIC <- model@Fit$DIC
+
+
 
 
 
@@ -1174,3 +1209,37 @@ methods::setMethod("show", "jrt", function(object) { mirt::anova(object@mirt.obj
 #'@export
 #'
 methods::setMethod("anova", "jrt", function(object) { mirt::anova(object@mirt.object)})
+
+
+
+
+
+
+
+# Documentation for data "ratings"
+#'A simulated dataset with 300 products judged by 6 judges.
+#'
+#' @format A data frame with 300 rows and 6 columns:
+#' \describe{
+#'   \item{Judge_1}{Judgments of judge 1}
+#'   \item{Judge_2}{Judgments of judge 2}
+#'   \item{Judge_3}{Judgments of judge 3}
+#'   \item{Judge_4}{Judgments of judge 4}
+#'   \item{Judge_5}{Judgments of judge 5}
+#'   \item{Judge_6}{Judgments of judge 6}
+#' }
+"ratings"
+
+#### CODE TO SIMULATE RATINGS DATASET
+# set.seed(123)
+# N <- 300
+# judges <- 6
+# diffs <- t(apply(matrix(runif(judges*4, .4, 5), judges), 1, cumsum))
+# d <- -(diffs - rowMeans(diffs)) + stats::rnorm(judges, mean = 0, sd= 1)
+# data <- mirt::simdata(matrix(rlnorm(judges,1,0)), d, N,
+#                       itemtype = 'graded') + 1
+# colnames(data) <- paste("Judge_", 1:dim(data)[2], sep = "")
+# data <- as.data.frame(data)
+
+
+

@@ -3,7 +3,9 @@
 jrt
 ===
 
-The goal of jrt is to provide tools to use Item-Response Theory (IRT) models on judgment data, especially in the context of the Consensual Assessment Technique. It is based on "mirt" (Chalmers, 2012) as its estimation engine.
+The goal of jrt is to provide tools to use Item-Response Theory (IRT) models on judgment data, especially in the context of the Consensual Assessment Technique, as presented in Myszkowski & Storme (2019).
+
+-   Myszkowski, N., & Storme, M. (2019). Judge response theory? A call to upgrade our psychometrical account of creativity judgments. *Psychology of Aesthetics, Creativity, and the Arts, 13*(2), 167-175. <http://dx.doi.org/10.1037/aca0000225>
 
 Installation
 ------------
@@ -24,21 +26,28 @@ library(jrt)
 #> Loading required package: directlabels
 ```
 
+-   Load example dataset
+
+``` r
+data <- jrt::ratings
+```
+
 -   To automatically select models
 
 ``` r
 fit <- jrt(data, progress.bar = F)
 #> The possible responses detected are: 1-2-3-4-5
 #> 
-#> Comparing models...
-#> 
-#> -== Automatic Model Selection ==-
-#> AICc for Rating Scale Model: 4414.924
-#> AICc for Generalized Rating Scale Model: 4310.307
-#> AICc for Graded Response Model: 4007.604
-#> AICc for Partial Credit Model: 4027.701
-#> AICc for Generalized Partial Credit Model: 4021.567
-#>  -> The best fitting model is the Graded Response Model.
+#> -== Model Selection (6 judges) ==-
+#> AICc for Rating Scale Model: 4414.924 | Model weight: 0.000
+#> AICc for Generalized Rating Scale Model: 4370.699 | Model weight: 0.000
+#> AICc for Partial Credit Model: 4027.701 | Model weight: 0.000
+#> AICc for Generalized Partial Credit Model: 4021.567 | Model weight: 0.000
+#> AICc for Constrained Graded Rating Scale Model: 4400.553 | Model weight: 0.000
+#> AICc for Graded Rating Scale Model: 4310.307 | Model weight: 0.000
+#> AICc for Constrained Graded Response Model: 4003.993 | Model weight: 0.859
+#> AICc for Graded Response Model: 4007.604 | Model weight: 0.141
+#>  -> The best fitting model is the Constrained Graded Response Model.
 #> 
 #>  -== General Summary ==-
 #> - 6 Judges
@@ -47,15 +56,15 @@ fit <- jrt(data, progress.bar = F)
 #> - Mean judgment = 2.977 | SD = 0.862
 #> 
 #> -== IRT Summary ==-
-#> - Model: Graded Response Model (GRM; Samejima, 1969) | doi: 10.1007/BF03372160
+#> - Model: Constrained (equal slopes) Graded Response Model (Samejima, 1969) | doi: 10.1007/BF03372160
 #> - Estimation package: mirt (Chalmers, 2012) | doi: 10.18637/jss.v048.i06
 #> - Estimation algorithm: Expectation-Maximization (EM; Bock & Atkin, 1981) | doi: 10.1007/BF02293801
 #> - Method of factor scoring: Expected A Posteriori (EAP)
-#> - AIC = 4000.69 | AICc = 4007.604 | BIC = 4111.803 | SABIC = 4000.69
+#> - AIC = 3999.249 | AICc = 4003.993 | BIC = 4091.843 | SABIC = 3999.249
 #> 
 #> -== Model-based reliability ==-
-#> - Empirical reliability | Average in the sample: .896
-#> - Expected reliability | Assumes a Normal(0,1) prior density: .896
+#> - Empirical reliability | Average in the sample: .893
+#> - Expected reliability | Assumes a Normal(0,1) prior density: .894
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" /><img src="man/figures/README-unnamed-chunk-3-2.png" width="100%" />
@@ -73,7 +82,7 @@ fit <- jrt(data, irt.model = "PCM")
 #> - Mean judgment = 2.977 | SD = 0.862
 #> 
 #> -== IRT Summary ==-
-#> - Model: Partial Credit Model (PCM; Masters, 1982) | doi: 10.1007/BF02296272
+#> - Model: Partial Credit Model (Masters, 1982) | doi: 10.1007/BF02296272
 #> - Estimation package: mirt (Chalmers, 2012) | doi: 10.18637/jss.v048.i06
 #> - Estimation algorithm: Expectation-Maximization (EM; Bock & Atkin, 1981) | doi: 10.1007/BF02293801
 #> - Method of factor scoring: Expected A Posteriori (EAP)
@@ -130,8 +139,8 @@ info.plot(fit, judge = 1)
 
 ``` r
 info.plot(fit, type = "Reliability",
-          max.y = 1,
           y.line = .70,
+          y.limits = c(0,1),
           theta.span = 4,
           theme = "classic")
 ```

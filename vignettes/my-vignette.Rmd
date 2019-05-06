@@ -24,29 +24,26 @@ This package provides user-friendly functions designed for the easy implementati
 
 `jrt` is not an estimation package, it provides wrapper functions that call estimation packages and extract/report/plot information from them. At this stage, `jrt` uses the (excellent) package `mirt` (Chalmers, 2012) as its only IRT engine. Thus, if you use `jrt` for your research, please ensure to cite `mirt` ([https://www.jstatsoft.org/article/view/v048i06](https://www.jstatsoft.org/article/view/v048i06])) as the estimation package/engine.
 
-* Chalmers, R. P. (2012). mirt: A multidimensional item response theory package for the R environment. *Journal of Statistical Software, 48*(6), 1–29.
+* Chalmers, R. P. (2012). mirt: A multidimensional item response theory package for the R environment. *Journal of Statistical Software, 48*(6), 1–29. http://dx.doi.org/10.18637/jss.v048.i06
 
-We also encourage that you cite `jrt` – especially if you use the plots or the automatic model selection. This would be done with:
+We also encourage that you cite `jrt` – especially if you use the plots or the automatic model selection. Currently, this would be done with:
 
-* Myszkowski, N. & Storme, M. (in press). Judge Response Theory ? A call to upgrade our psychometrical account of creativity judgments. *Psychology of Aesthetics, Creativity and the Arts.*
+* Myszkowski, N., & Storme, M. (2019). Judge response theory? A call to upgrade our psychometrical account of creativity judgments. *Psychology of Aesthetics, Creativity, and the Arts, 13*(2), 167-175.
+http://dx.doi.org/10.1037/aca0000225
+
 
 Ok now let's get started...
 
 ## What the data should look like
 
-Then, a judgment `data.frame` would be provided to the function `jrt`. Here we generated one.
+Then, a judgment `data.frame` would be provided to the function `jrt`. Here we'll use the simulated one in `jrt::ratings`.
 
-```{r include=FALSE}
-set.seed(123)
-N <- 300
-judges <- 6
-diffs <- t(apply(matrix(runif(judges*4, .4, 5), judges), 1, cumsum))
-d <- -(diffs - rowMeans(diffs)) + stats::rnorm(judges, mean = 0, sd= 1)
-data <- mirt::simdata(matrix(rlnorm(judges,1,0)), d, N,
-itemtype = 'graded') + 1
-colnames(data) <- paste("Judge_", 1:dim(data)[2], sep = "")
-data <- as.data.frame(data)
+
+```{r include=TRUE}
+data <- jrt::ratings
 ```
+
+It looks like this:
 
 ```{r}
 head(data)
@@ -254,7 +251,7 @@ info.plot(fit, type = "se")
 info.plot(fit, type = "r", y.limits = c(0,1))
 ```
 
-- Use `y.line` to add a horizontal line, for example for a .70 threshold, usual for reliability.
+- Use `y.line` to add a horizontal line, for example for a .70 threshold, usual (though rarely used in IRT) for reliability.
 
 ```{r}
 info.plot(fit, type = "r", y.line = .70)
@@ -286,7 +283,8 @@ info.plot(fit, 1, "ir",
           theta.span = 5,
           theme = "classic",
           line.width = 2,
-          greyscale = T)
+          greyscale = T,
+          font.family = "serif")
 ```
 
 
@@ -442,7 +440,7 @@ data <- mirt::key2binary(mirt::SAT12,
 fit <- mirt::mirt(data = data, model = 1, itemtype = "2PL", verbose = F)
 ## Plotting an item response function
 jcc.plot(fit, item = 2)
-## Plotting the item response functions of the first 24 items with a larger theta range
+## Plotting the item response functions of the first 12 items with a larger theta range
 jcc.plot(fit, facet.cols = 4, item = 1:12, theta.span = 5)
 ```
 
