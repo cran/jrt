@@ -4,7 +4,8 @@
 \name{ratings}
 \alias{ratings}
 \title{A simulated dataset with 300 products judged by 6 judges.}
-\format{A data frame with 300 rows and 6 columns:
+\format{
+A data frame with 300 rows and 6 columns:
 \describe{
   \item{Judge_1}{Judgments of judge 1}
   \item{Judge_2}{Judgments of judge 2}
@@ -12,7 +13,8 @@
   \item{Judge_4}{Judgments of judge 4}
   \item{Judge_5}{Judgments of judge 5}
   \item{Judge_6}{Judgments of judge 6}
-}}
+}
+}
 \usage{
 ratings
 }

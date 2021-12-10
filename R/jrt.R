@@ -48,8 +48,8 @@
 #' @param summary A logical to indicate if summary statistics should be
 #'   displayed as messages (default is \code{TRUE}).
 #' @param selection.criterion A string with the criterion for the automatic
-#'   selection. The default is the Akaike Information Criterion corrected
-#'   (\code{AICC}), but other criteria may be used (\code{AIC}, \code{BIC} and
+#'   selection. The default is the Akaike Information Criterion
+#'   (\code{AIC}), but other criteria may be used (\code{AICc}, \code{BIC} and
 #'   \code{SABIC}).
 #' @param response.categories A numeric vector to indicate the possible score
 #'   values. For example, use \code{1:7} for a Likert-type score from 1 to 7.
@@ -91,7 +91,7 @@
 #'   slower for unidimensional models).
 #' @param method.item.fit A character value to indicate which fit statistic to use
 #' for the item fit output. Passed to the \code{itemfit} function of the
-#' \code{mirt} pacakge. Can be \code{S_X2}, \code{Zh}, \code{X2}, \code{G2},
+#' \code{mirt} package. Can be \code{S_X2}, \code{Zh}, \code{X2}, \code{G2},
 #' \code{PV_Q1}, \code{PV_Q1}, \code{X2*}, \code{X2*_df}, \code{infit}. Note that some are not be computable if there are missing data.
 #' @param status.verbose A logical to indicate whether to output messages
 #'   indicating what the package is doing. Defaults to \code{FALSE}.
@@ -124,6 +124,7 @@
 #' Theory Package for the R Environment. \emph{Journal of Statistical Software,
 #' 48}(6), 1-29. \doi{10.18637/jss.v048.i06}
 #' @references Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
+#' @references Myszkowski, N. (2021). Development of the R library “jrt”: Automated item response theory procedures for judgment data and their application with the consensual assessment techniques. \emph{Psychology of Aesthetics, Creativity and the Arts, 15}(3), 426-438. \doi{10.1037/aca0000287}
 #'
 #' @import mirt
 #' @importClassesFrom mirt SingleGroupClass
@@ -148,7 +149,7 @@
 jrt <- function(data,
                 irt.model = "auto",
                 summary = T,
-                selection.criterion = "AICC",
+                selection.criterion = "AIC",
                 response.categories = "auto",
                 remove.judges.with.unobserved.categories = F,
                 additional.stats = F,
@@ -322,10 +323,9 @@ jrt <- function(data,
     # If judges have different observed categories
     if(numberofjudgestoremove > 0 && irt.model == "auto"){
       if (remove.judges.with.unobserved.categories == F) {
-        message(paste(sep="", percent(ratioofjudgestoremove)," ",column.names,"s (",numberofjudgestoremove," out of ",numberofjudges, ") did not have all categories (", paste(response.categories, collapse = "-")," observed). Since you set remove.judges.with.unobserved.categories = FALSE, we kept all ",column.names, "s but did not estimate the Rating Scale and Generalized Rating Scale Models. Set remove.judges.with.unobserved.categories = TRUE if you want to remove the incomplete ",column.names, "s and run all models instead. We also suggest to check your data for impossible values."))
+        message(paste(sep="", percent(ratioofjudgestoremove)," ",column.names,"s (",numberofjudgestoremove," out of ",numberofjudges, ") did not have all categories (", paste(response.categories, collapse = "-")," observed). Rating scale models were ignored. See documentation (argument remove.judges.with.unobserved.categories) for details."))
       } else if (remove.judges.with.unobserved.categories == T) {
-        message(paste(sep="", percent(ratioofjudgestoremove)," ",column.names,"s (",numberofjudgestoremove," out of ",numberofjudges, ") did not have all categories (", paste(response.categories, collapse = "-")," observed). ", "Since you set remove.judges.with.unobserved.categories = TRUE, we removed these ",column.names, "s for the model comparison, and they will be removed if the RSM or GRSM model is selected. If not, all ",column.names, "s will be kept after the model comparison stage. Set remove.judges.with.unobserved.categories = FALSE if you want to base the model selection on all ",column.names, "s but ignore the RSM and GRMS models."))
-        #Since you set remove.judges.with.unobserved.categories = TRUE, we removed these judges in order to estimate the Rating Scale and Generalized Rating Scale Models", "Set remove.judges.with.unobserved.categories = FALSE if you want to ept all judges but did not estimate the Rating Scale and Generalized Rating Scale Models. We also suggest to check your data for impossible values."))
+        message(paste(sep="", percent(ratioofjudgestoremove)," ",column.names,"s (",numberofjudgestoremove," out of ",numberofjudges, ") did not have all categories (", paste(response.categories, collapse = "-")," observed). ", "Incomplete ",column.names, "s were removed for model comparison, and in subsequent analyses if a rating scale model is selected. See documentation (argument remove.judges.with.unobserved.categories) for details."))
       }
     }
   }
@@ -483,35 +483,34 @@ if (progress.bar == T) {
                       TOL = convergence.threshold,
                       technical = list(NCYCLES = iterations.for.model.comparison,
                                        warn = F,
-                                       message = F,
-                                       removeEmptyRows=TRUE))
-      modelAIC <- fit@Fit$AIC
-      modelAICc <- fit@Fit$AICc
-      modelBIC <- fit@Fit$BIC
-      modelSABIC <- fit@Fit$SABIC
+                                       message = F))
+      modelAIC <- as.numeric(fit@Fit$AIC)
+      modelAICc <- as.numeric(fit@Fit$AICc)
+      modelBIC <- as.numeric(fit@Fit$BIC)
+      modelSABIC <- as.numeric(fit@Fit$SABIC)
       if (selection.criterion == "AIC" | selection.criterion == "aic") {
         fullnameofcomparisonstatistic <- "Akaike Information Criterion"
         shortnameofcomparisonstatistic <- "AIC"
         citationofcomparisonstatistic <- "citationneeded" #####!!!!
-        comparisonstatistic[i] <- modelAIC
+        comparisonstatistic[i] <- as.numeric(modelAIC)
       }
       if (selection.criterion == "BIC" | selection.criterion == "bic") {
         fullnameofcomparisonstatistic <- "Bayesian Information Criterion"
         shortnameofcomparisonstatistic <- "BIC"
         citationofcomparisonstatistic <- "citationneeded" #####!!!!
-        comparisonstatistic[i] <- modelBIC
+        comparisonstatistic[i] <- as.numeric(modelBIC)
       }
       if (selection.criterion == "SABIC" | selection.criterion == "sabic") {
         fullnameofcomparisonstatistic <- "Sample-Adjusted Bayesian Information Criterion"
         shortnameofcomparisonstatistic <- "SABIC"
         citationofcomparisonstatistic <- "citationneeded" #####!!!!
-        comparisonstatistic[i] <- modelSABIC
+        comparisonstatistic[i] <- as.numeric(modelSABIC)
       }
     if (selection.criterion == "AICc" | selection.criterion == "aicc" | selection.criterion == "AICC") {
       fullnameofcomparisonstatistic <- "Akaike Information Criterion corrected"
       shortnameofcomparisonstatistic <- "AICc"
       citationofcomparisonstatistic <- "citationneeded" #####!!!!
-      comparisonstatistic[i] <- modelAICc
+      comparisonstatistic[i] <- as.numeric(modelAICc)
     }
       if (progress.bar == T) {
         utils::setTxtProgressBar(pb,i)
@@ -778,8 +777,7 @@ positionofbestfittingmodelinlist <- which.min(comparisonstatistic)
                       verbose = estimation.package.warnings,
                       technical = list(NCYCLES = maximum.iterations,
                                        warn = estimation.package.warnings,
-                                       message = estimation.package.warnings,
-                                       removeEmptyRows=TRUE)
+                                       message = estimation.package.warnings)
   )
 
   #Store info to be displayed
@@ -981,10 +979,10 @@ if (number.of.judges.removed.for.outputs > 0) {
                   "- Estimation algorithm: ", estimationalgorithmfullname, " ", authorofestimationalgorithm, " | ", doiofestimationalgorithm, "\n",
 
                   "- Method of factor scoring: ", methodfactorscoresfullname,"\n",
-                  "- AIC = ", round(modelAIC, digits = digits)," |",
-                  " AICc = ", round(modelAICc, digits = digits)," |",
-                  " BIC = ", round(modelBIC, digits = digits)," |",
-                  " SABIC = ", round(modelAIC, digits = digits),"\n",
+                  "- AIC = ", round(as.numeric(modelAIC), digits = digits)," |",
+                  " AICc = ", round(as.numeric(modelAICc), digits = digits)," |",
+                  " BIC = ", round(as.numeric(modelBIC), digits = digits)," |",
+                  " SABIC = ", round(as.numeric(modelSABIC), digits = digits),"\n",
                   "\n-== Model-based reliability ==-\n",
                   "- Empirical reliability | Average in the sample: ", numformat(empiricalreliability, digits), "\n",
                   "- Expected reliability | Assumes a Normal(0,1) prior density: ", numformat(averagedensity, digits), "\n"#,
@@ -1112,8 +1110,7 @@ if (sum(missingness.logical.matrix)>0) {
                       verbose = estimation.package.warnings,
                       technical = list(NCYCLES = maximum.iterations,
                                        warn = estimation.package.warnings,
-                                       message = estimation.package.warnings,
-                                       removeEmptyRows=TRUE)
+                                       message = estimation.package.warnings)
   )
 
   person.fit <- as.data.frame(mirt::personfit(x = model.complete, method = method.factor.scores, Theta = NULL, stats.only = TRUE))
@@ -1135,17 +1132,13 @@ outputobject <- methods::new("jrt",
                     standard.errors.vector = standard.errors.vector,
                     mean.scores.vector = mean.scores.vector,
                     imputed.data = as.data.frame(imputed.data),
-                    partially.missing.data = sum(missingness.logical.matrix),
+#                    partially.missing.data = sum(missingness.logical.matrix),
                     response.categories = response.categories,
                     sample.size = sample.size,
                     method.factor.scores = methodfactorscoresfullname,
                     fitted.model = irtfullmodelnameforoutputs,
                     empirical.reliability = empiricalreliability,
                     marginal.reliability = marginalreliability,
-                    AIC = modelAIC,
-                    AICc = modelAICc,
-                    BIC = modelBIC,
-                    SABIC = modelSABIC,
                     item.fit = item.fit,
                     person.fit = person.fit, ### Will have to account there for complete missing
                     local.dependence = local.dependence,
@@ -1169,15 +1162,32 @@ return(outputobject)
 
 }
 
-#'@export
-#'
+#' Object returned by the \link{jrt} function.
+#' @slot input.data The original data
+#' @slot output.data The output data with factor scores.
+#' @slot fitted.model The selected model.
+#' @slot response.categories The count of response categories.
+#' @slot method.factor.scores The method used to compute factor scores.
+#' @slot imputed.data The data with imputation.
+#' @slot factor.scores The factor scores with standard errors as a data.frame.
+#' @slot factor.scores.vector The factor scores as a vector.
+#' @slot standard.errors.vector The standard errors as a vector.
+#' @slot mean.scores.vector The mean scores as a vector.
+#' @slot empirical.reliability The empirical reliability.
+#' @slot marginal.reliability The marginal reliability.
+#' @slot item.fit Tests of item fit.
+#' @slot person.fit Tests of person fit.
+#' @slot local.dependence Tests of local dependence.
+#' @slot sample.size The sample size used in the model.
+#' @slot number.of.judges.in.model The number of judges (or items) in the model.
+#' @slot column.names The name used for the columns.
+#' @slot mirt.object The mirt object of the model.
 methods::setClass(Class = "jrt", slots = c(
   input.data = "data.frame",
   output.data = "data.frame",
   fitted.model = "character",
   response.categories = "numeric",
   method.factor.scores = "character",
-  partially.missing.data = "numeric",
   imputed.data = "data.frame",
   factor.scores = "data.frame",
   factor.scores.vector = "numeric",
@@ -1185,10 +1195,6 @@ methods::setClass(Class = "jrt", slots = c(
   mean.scores.vector = "numeric",
   empirical.reliability = "numeric",
   marginal.reliability = "numeric",
-  AIC = "numeric",
-  AICc = "numeric",
-  BIC = "numeric",
-  SABIC = "numeric",
   item.fit = "data.frame",
   person.fit = "data.frame",
   local.dependence = "list",
@@ -1199,16 +1205,10 @@ methods::setClass(Class = "jrt", slots = c(
 ))
 
 
-### Set the print method for jrt objects (does not output anything --> might work on a quick output?)
 
-#'@export
-#'
-methods::setMethod("show", "jrt", function(object) { mirt::anova(object@mirt.object)})
-
-
-#'@export
-#'
-methods::setMethod("anova", "jrt", function(object) { mirt::anova(object@mirt.object)})
+#' anova method for objects returned by the \link{jrt} function.
+#'@param object An object returned by \link{jrt}.
+methods::setMethod("anova", "jrt", function(object) {mirt::anova(object@mirt.object)})
 
 
 

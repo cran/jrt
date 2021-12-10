@@ -1,19 +1,18 @@
 citHeader("To cite jrt in publications use:")
 
 citEntry(entry = "Article",
-  title        = "Judge Response Theory? A call to upgrade our psychometrical account of creativity judgements
+  title        = "Development of the R library jrt: Automated item response theory procedures for judgment data and their application with the consensual assessment technique
 ",
-  author       = personList(as.person("Nils Myszkowski"),
-                   as.person("Martin Storme")),
+  author       = personList(as.person("Nils Myszkowski")),
   journal      = "Psychology of Aesthetics, Creativity and the Arts",
-  year         = "in press",
-  volume       = "",
-  number       = "",
-  pages        = "",
-  url          = "",
+  year         = "2021",
+  volume       = "15",
+  number       = "3",
+  pages        = "426-438",
+  url          = "http://dx.doi.org/10.1037/aca0000287",
 
   textVersion  =
-  paste("Myszkowski, N. & Storme, M. (in press).",
-        "Judge Response Theory? A call to upgrade our psychometrical account of creativity judgements.",
-        "Psychology of Aesthetics, Creativity and the Arts.")
+  paste("Myszkowski, N. (2021).",
+        "Development of the R library jrt: Automated item response theory procedures for judgment data and their application with the consensual assessment technique.",
+        "Psychology of Aesthetics, Creativity and the Arts, 15(3), 426-438.")
 )

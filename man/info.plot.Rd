@@ -4,15 +4,33 @@
 \alias{info.plot}
 \title{Plot the information function for a judge or for the entire set of judges.}
 \usage{
-info.plot(jrt.object, judge = "all", type = "information",
-  title = "auto", column.names = "auto", theta.span = 3.5,
-  y.limits = NULL, y.line = NULL, name.for.y.line = "Threshold",
-  y.line.refers.to.secondary.axis = TRUE, greyscale = FALSE,
-  color.palette = "D3", line.type = 1, line.width = 1,
-  key.width = 3, legend.position = "right", legend.columns = "",
-  theme = "bw", text.size = 10, title.size = text.size + 4,
-  remove.gridlines = TRUE, font.family = "sans", precision = 20,
-  mirt.object.input = F, item = NULL)
+info.plot(
+  jrt.object,
+  judge = "all",
+  type = "information",
+  title = "auto",
+  column.names = "auto",
+  theta.span = 3.5,
+  y.limits = NULL,
+  y.line = NULL,
+  name.for.y.line = "Threshold",
+  y.line.refers.to.secondary.axis = TRUE,
+  greyscale = FALSE,
+  color.palette = "D3",
+  line.type = 1,
+  line.width = 1,
+  key.width = 3,
+  legend.position = "right",
+  legend.columns = "",
+  theme = "bw",
+  text.size = 10,
+  title.size = text.size + 4,
+  remove.gridlines = TRUE,
+  font.family = "sans",
+  precision = 20,
+  mirt.object.input = F,
+  item = NULL
+)
 }
 \arguments{
 \item{jrt.object}{A object of the \code{jrt} class (created by the function \code{jrt}).}
@@ -37,7 +55,7 @@ info.plot(jrt.object, judge = "all", type = "information",
 
 \item{greyscale}{A logical (default is \code{FALSE}) to indicate whether to use greyscale graphics (useful for publication). Uses variations in linetype as opposed to variations in line colors.}
 
-\item{color.palette}{A character value to indicate the colour palette to use. Defaults to \code{"D3"} from "ggsci". Use \code{""} for the default of \code{ggplot2}. The palettes are supplied as arguments in the \code{scale_fill_brewer()} function of \code{ggplot2}. See here for a list of palettes: \url{http://ggplot2.tidyverse.org/reference/scale_brewer.html}. In addition, most palettes from the pacakge \code{ggsci} are available (e.g., \code{"npg"}, \code{"aas"}, \code{"nejm"}, \code{"lancet"}, \code{"jama"}, \code{"d3"}). Use \code{vignette("ggsci")} for details.}
+\item{color.palette}{A character value to indicate the colour palette to use. Defaults to \code{"D3"} from "ggsci". Use \code{""} for the default of \code{ggplot2}. The palettes are supplied as arguments in the \code{scale_fill_brewer()} function of \code{ggplot2}. In addition, most palettes from the package \code{ggsci} are available (e.g., \code{"npg"}, \code{"aas"}, \code{"nejm"}, \code{"lancet"}, \code{"jama"}, \code{"d3"}). Use \code{vignette("ggsci")} for details.}
 
 \item{line.type}{A numeric indicating the line type for the information function curve (default is \code{1} for a plain line. This would be used if overlaying multiple plots.}
 
@@ -92,9 +110,9 @@ info.plot(fit, "all", type = "SE")
 
 }
 \references{
-Chalmers, R., P. (2012). mirt: A Multidimensional Item Response Theory
-Package for the R Environment. \emph{Journal of Statistical Software, 48}(6), 1-29.
-\doi{10.18637/jss.v048.i06}
+Chalmers, R., P. (2012). mirt: A Multidimensional Item Response Theory Package for the R Environment. \emph{Journal of Statistical Software, 48}(6), 1-29. \doi{10.18637/jss.v048.i06}
 
 Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
+
+Myszkowski, N. (2021). Development of the R library “jrt”: Automated item response theory procedures for judgment data and their application with the consensual assessment techniques. \emph{Psychology of Aesthetics, Creativity and the Arts, 15}(3), 426-438. \doi{10.1037/aca0000287}
 }

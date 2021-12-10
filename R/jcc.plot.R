@@ -8,13 +8,16 @@
 #' @param greyscale A logical to indicate whether to plot in greyscale (\code{TRUE}, default) as opposed to color (\code{FALSE}).
 #' @param vertical.labels A logical to indicate whether the labels should be vertically oriented (\code{TRUE}), as opposed to oriented inthe angle of the trace curve (\code{FALSE}, the default).
 #' @param title A character title for the plot. By default it is created automatically based on the judge number.
-#' @param column.names A character to indicate how a judge should be called (Defaults to \code{"auto"}, which uses what was set in the estimation function \code{jrt}, whose default is \code{"judge"}, but you may use \code{"Rater"}, \code{"Expert"}, etc.). This is used to create automatic titles.
+#' @param column.names A character to indicate what a column corresponds to (Defaults to \code{"auto"}, which uses what was set in the estimation function \code{jrt}, whose default is \code{"judge"}, but you may use \code{"Rater"}, \code{"Expert"}, \code{"Item"}, etc.). This is used to create automatic titles.
+#' @param manual.facet.names A vector to indicate the names to give to the different facets. Defaults to \code{"auto"}, which will automatically name them. If not using \code{"auto"}, the vector length should be equal to the total number of items/judges (not the total in the plot but the total in the dataset).
+#' @param manual.line.names A vector to indicate the individual names to give to the different response categories (or different category curves). Defaults to \code{"auto"}, which names categories from 1 to the number of categories. If not using \code{"auto"}, the vector supplied should be of the same length as the number of response categories (use the \code{name.for.reliability} argument to change it for reliability).
 #' @param overlay.reliability A logical to indicate whether to overlay the reliability function of the item (default is \code{FALSE}). If overlayed (\code{TRUE}), the reliability function will be contrast with the category curves by being in color if the category curves are in blackandwhite, and in black dashed if the category curves are in color.
-#' @param color.palette A character value to indicate the colour palette to use. Defaults to \code{"D3"} from "ggsci". Use \code{""} for the default of \code{ggplot2}. The palettes are supplied as arguments to \code{ggplot2}. See here for a list of palettes: \url{http://ggplot2.tidyverse.org/reference/scale_brewer.html}. In addition, most palettes from the pacakge \code{ggsci} are available (e.g., \code{"npg"}, \code{"aas"}, \code{"nejm"}, \code{"lancet"}, \code{"jama"}, \code{"d3"}). Use \code{vignette("ggsci")} for details. Make sure there are enough colors in the palette. Alternatively, you can pass a vector of colors.
+#' @param color.palette A character value to indicate the colour palette to use. Defaults to \code{"D3"} from "ggsci". Use \code{""} for the default of \code{ggplot2}. The palettes are supplied as arguments to \code{ggplot2}. See here for a list of palettes. In addition, most palettes from the package \code{ggsci} are available (e.g., \code{"npg"}, \code{"aas"}, \code{"nejm"}, \code{"lancet"}, \code{"jama"}, \code{"d3"}). Use \code{vignette("ggsci")} for details. Make sure there are enough colors in the palette. Alternatively, you can pass a vector of colors.
 #' @param category.name.for.legend A character to indicate how to call categories in the legend. Default to \code{"Category"} but for example you may try \code{"Cat."} or even \code{""} to save space.
 #' @param name.for.reliability A character to indicate a preferred name for reliability in the legend or labels. Defaults to \code{"auto"}, which adapts to whether labels are used.
 #' @param theta.span A numeric indicating the maximum \eqn{\theta}.
 #' @param line.width A numeric indicating the width of the trace lines (default is \code{2.5}).
+#' @param line.opacity A numeric vector to indicate opacities for the different category lines. Defaults to \code{1}. Must be of length equal to the number of categories + 1 (for the reliability line, even if not plotted). For example if there are 5 response categories this vector should be of length 6.
 #' @param key.width A numeric to indicate the width of the legend key (default is \code{3}).
 #' @param legend.position A character string or vector of coordinates to position the legend key. Defaults to \code{"right"}. Other possibilities include notably \code{"bottom"}.
 #' @param legend.columns A numeric to indicate after how many legend key elements to add a line break. Especially useful if using \code{legend.position = "bottom"} if you want line breaks between each key. Defaults to \code{""}, which automatically saves space based on the legend position (line breaks are used if the legend in positioned on the side of the graph).
@@ -31,11 +34,10 @@
 #' Defaults to \code{FALSE}.
 #' @param mirt.object.input A logical allowing to input directly an \code{mirt} object as a \code{jrt.object} argument, even though this should be detected automatically. See \code{mirt} package documentation, and note that this is a secondary use that may lead to inconsistent results at this point.
 #' @param item For convenience, this argument, more standard to IRT packages, can be used instead of the \code{judge} argument.
-#' @references
-#' Chalmers, R., P. (2012). mirt: A Multidimensional Item Response Theory
-#' Package for the R Environment. \emph{Journal of Statistical Software, 48}(6), 1-29.
-#' \doi{10.18637/jss.v048.i06}
+#' @references Chalmers, R., P. (2012). mirt: A Multidimensional Item Response Theory
+#' Package for the R Environment. \emph{Journal of Statistical Software, 48}(6), 1-29. \doi{10.18637/jss.v048.i06}
 #' @references Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
+#' @references Myszkowski, N. (2021). Development of the R library “jrt”: Automated item response theory procedures for judgment data and their application with the consensual assessment techniques. \emph{Psychology of Aesthetics, Creativity and the Arts, 15}(3), 426-438. \doi{10.1037/aca0000287}
 #' @return A plot of the category curves.
 #' @import directlabels
 #' @import mirt
@@ -67,12 +69,15 @@ jcc.plot <- function(jrt.object,
                      vertical.labels = F,
                      title = "auto",
                      column.names = "auto",
+                     manual.facet.names = "auto",
+                     manual.line.names = "auto",
                      overlay.reliability = F,
                      color.palette = "D3",
                      category.name.for.legend = "",
                      name.for.reliability = "auto",
                      theta.span = 3.5,
                      line.width = .8,
+                     line.opacity = 1,
                      key.width = 3,
                      legend.position = "right",
                      legend.columns = "",
@@ -244,7 +249,6 @@ if (mirt.object.input == FALSE) {
     number.of.categories <- dim(traceline.df)[2]
 
 
-
     #-------------------------
     # Print time diagnostics
     if (debug == T) {
@@ -259,15 +263,33 @@ if (mirt.object.input == FALSE) {
 # Detect if dichotomous items
 if (number.of.categories == 2) {
   dichotomous <- TRUE
+  number.of.categories <- 1
 } else { dichotomous <- FALSE }
+
 
 if (dichotomous == TRUE) {
   traceline.df[,1] <- NULL
 }
 
-    #return(traceline.df)
 
-    names(traceline) <- paste(column.names, " ",1:length(traceline), sep = "")
+
+
+
+if(length(manual.facet.names) == 1) {
+if (manual.facet.names == "auto") {
+  # Auto-naming of facets in the dataset
+  names.of.facets <- paste(column.names, " ",1:length(traceline), sep = "")
+}
+  else {names.of.facets <- manual.facet.names}
+  }   else {names.of.facets <- manual.facet.names}
+
+
+
+# Error message if not using the correct number of facet names
+if (length(names.of.facets) != length(traceline)) {
+  stop(paste0("Please supply a vector of facet names of appropriate length (or use \"auto\").\n  The manual.facet.names vector has ", length(names.of.facets) ," values, while the dataset contains ", length(traceline)," columns.")) }
+
+names(traceline) <- names.of.facets
 
 
 
@@ -291,6 +313,9 @@ if (dichotomous == TRUE) {
     dataforplot$Item <- as.character(dataforplot$Item)
     dataforplot$Category <- as.character(dataforplot$Category)
 
+#return(dataforplot)
+
+
 
     #-------------------------
     # Print time diagnostics
@@ -300,6 +325,20 @@ if (dichotomous == TRUE) {
       message(paste0("Time ",time.point, ": ", time))
     }
     #-------------------------
+
+
+
+
+
+    #-------------------------
+    # Print time diagnostics
+    if (debug == T) {
+      time <- Sys.time() - start.time
+      time.point <- round(time.point + 1, 2)
+      message(paste0("Time ",time.point, ": ", time))
+    }
+    #-------------------------
+
 
     # Create a function that takes the long format data and append information for item i
     appendinformation <- function(itemnumber, dat) {
@@ -308,36 +347,30 @@ if (dichotomous == TRUE) {
       bindthetaandinfo <- cbind(bindthetaandinfo, as.character(rep(type.for.titles, length(Theta))))
       names(bindthetaandinfo) <- c("Theta", "y", nameforcategory)
       bindthetaandinfo$Category <- as.character(bindthetaandinfo$Category)
-      bindthetaandinfo$Item <- rep(paste(column.names, " ",itemnumber, sep=""))
+      #bindthetaandinfo$Item <- rep(paste(column.names, " ",itemnumber, sep=""))
+      bindthetaandinfo$Item <- rep(paste(names.of.facets[itemnumber]))
       mergeddata <- suppressMessages(dplyr::full_join(dat, bindthetaandinfo))
       return(mergeddata)
     }
-    #
 
 
-
-    #-------------------------
-    # Print time diagnostics
-    if (debug == T) {
-      time <- Sys.time() - start.time
-      time.point <- round(time.point + 1, 2)
-      message(paste0("Time ",time.point, ": ", time))
-    }
-    #-------------------------
-
-    #
-    # Apply to add information
+    # Apply to add information/reliability
     for (i in 1:number.of.items) {
       dataforplot <- appendinformation(itemnumber = i, dat = dataforplot)
     }
 
+#    View(dataforplot)
+
     dataforplot <- stats::na.omit(dataforplot)
 
 
-
 # Transform Item vector into factor type with appropriate order
-factor.levels.item <- paste0(column.names, " ",1:number.of.items)
+factor.levels.item <- names.of.facets
+#View(dataforplot)
+
+#print(factor.levels.item)
 dataforplot$Item <- factor(dataforplot$Item, levels=factor.levels.item)
+
 
 
 #-------------------------
@@ -357,6 +390,7 @@ if (judge != "all") {
 }} else {
     dataforplot <- dplyr::filter(dataforplot, as.integer(as.factor(Item))  %in% judge)
 }
+
 
 
 #
@@ -379,13 +413,33 @@ if (debug == T) {
     # replace "Category by"
     name.for.category <- category.name.for.legend
 
-
+#return(dataforplot)
 
 
     dataforplot$Category <- gsub(pattern = paste(nameforcategory, sep = "", " "), replacement = name.for.category, x = dataforplot$Category)
+
+
+
     dataforplot$Category <- gsub(pattern = type.for.titles, replacement = name.for.reliability, x = dataforplot$Category)
 
+
     dataforplot$Category <- as.factor(dataforplot$Category)
+
+
+
+
+    #return(dataforplot)
+if (length(manual.line.names) == 1) {
+  if (manual.line.names == "auto") {
+    levels(dataforplot$Category) <- c(1:number.of.categories, name.for.reliability)
+
+  } else {
+    levels(dataforplot$Category) <- c(manual.line.names, name.for.reliability)
+  }
+} else {
+  levels(dataforplot$Category) <- c(manual.line.names, name.for.reliability)
+}
+
 
     #return(levels(dataforplot$Category))
 
@@ -401,11 +455,12 @@ if (debug == T) {
     #-------------------------
 
 
+
     if (overlay.reliability == F) {
     dataforplot <- dplyr::filter(dataforplot, Category != name.for.reliability)
     }
 
-   # return(dataforplot)
+
 
 
     if (overlay.reliability == TRUE) {
@@ -450,14 +505,33 @@ if (debug == T) {
 
 
 
+
+if (length(line.opacity) != 1) {
+  vector.of.opacity <- line.opacity
+  dataforplot$opacity <- dataforplot$Category
+  levels(dataforplot$opacity) <- vector.of.opacity
+  dataforplot$opacity <- as.numeric(as.character(dataforplot$opacity))
+}
+
+
+# Ease CRAN checks
+opacity <- dataforplot$opacity
+
     # Set color palettes
 
     # plot chart
     if (greyscale == T) {
-      p <- ggplot2::ggplot(dataforplot, ggplot2::aes(Theta, y, colour = Category, linetype = Category, group = Category)) +
-        ggplot2::scale_color_manual(values = rep("black", 100))
+      # If different opacities
+      if (length(line.opacity) != 1) {p <- ggplot2::ggplot(dataforplot, ggplot2::aes(Theta, y, colour = Category, linetype = Category, group = Category, alpha = opacity))} else {
+        p <- ggplot2::ggplot(dataforplot, ggplot2::aes(Theta, y, colour = Category, linetype = Category, group = Category)) }
+      p <- p + ggplot2::scale_color_manual(values = rep("black", 100))
     } else {
-      p <- ggplot2::ggplot(dataforplot, ggplot2::aes(Theta, y, colour = Category, group = Category))
+      # If different opacities
+      if (length(line.opacity) != 1) {p <- ggplot2::ggplot(dataforplot, ggplot2::aes(Theta, y, colour = Category, group = Category, alpha = opacity))
+} else {p <- ggplot2::ggplot(dataforplot, ggplot2::aes(Theta, y, colour = Category, group = Category))}
+
+
+
       if (length(color.palette)>1) {
         p <- p + ggplot2::scale_colour_manual(values=color.palette)
       } else {
@@ -653,9 +727,11 @@ if (debug == T) {
     #-------------------------
 
 
+    # To remove legend for transparency
+    p <- p + ggplot2::scale_alpha_continuous(guide = "none")
 
     if (labelled == T) {
-      p <- p + ggplot2::guides(fill=FALSE, linetype = FALSE)
+      p <- p + ggplot2::guides(fill="none", linetype = "none")
       # For option that verticalises text in labels
    #   if(vertical.labels == T){angled.boxes <-list(angled.boxes, rot=90)}
 

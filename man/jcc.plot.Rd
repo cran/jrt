@@ -4,16 +4,39 @@
 \alias{jcc.plot}
 \title{Plot the category curves for a judge.}
 \usage{
-jcc.plot(jrt.object, judge = "all", labelled = T, greyscale = F,
-  vertical.labels = F, title = "auto", column.names = "auto",
-  overlay.reliability = F, color.palette = "D3",
-  category.name.for.legend = "", name.for.reliability = "auto",
-  theta.span = 3.5, line.width = 0.8, key.width = 3,
-  legend.position = "right", legend.columns = "", theme = "bw",
-  text.size = 10, title.size = text.size + 4, font.family = "sans",
-  remove.gridlines = T, facet.rows = NULL, facet.cols = NULL,
-  facet.title.position = "top", precision = 20, debug = F,
-  mirt.object.input = F, item = NULL)
+jcc.plot(
+  jrt.object,
+  judge = "all",
+  labelled = T,
+  greyscale = F,
+  vertical.labels = F,
+  title = "auto",
+  column.names = "auto",
+  manual.facet.names = "auto",
+  manual.line.names = "auto",
+  overlay.reliability = F,
+  color.palette = "D3",
+  category.name.for.legend = "",
+  name.for.reliability = "auto",
+  theta.span = 3.5,
+  line.width = 0.8,
+  line.opacity = 1,
+  key.width = 3,
+  legend.position = "right",
+  legend.columns = "",
+  theme = "bw",
+  text.size = 10,
+  title.size = text.size + 4,
+  font.family = "sans",
+  remove.gridlines = T,
+  facet.rows = NULL,
+  facet.cols = NULL,
+  facet.title.position = "top",
+  precision = 20,
+  debug = F,
+  mirt.object.input = F,
+  item = NULL
+)
 }
 \arguments{
 \item{jrt.object}{A object of the \code{jrt} class (created by the function \code{jrt}).}
@@ -28,11 +51,15 @@ jcc.plot(jrt.object, judge = "all", labelled = T, greyscale = F,
 
 \item{title}{A character title for the plot. By default it is created automatically based on the judge number.}
 
-\item{column.names}{A character to indicate how a judge should be called (Defaults to \code{"auto"}, which uses what was set in the estimation function \code{jrt}, whose default is \code{"judge"}, but you may use \code{"Rater"}, \code{"Expert"}, etc.). This is used to create automatic titles.}
+\item{column.names}{A character to indicate what a column corresponds to (Defaults to \code{"auto"}, which uses what was set in the estimation function \code{jrt}, whose default is \code{"judge"}, but you may use \code{"Rater"}, \code{"Expert"}, \code{"Item"}, etc.). This is used to create automatic titles.}
+
+\item{manual.facet.names}{A vector to indicate the names to give to the different facets. Defaults to \code{"auto"}, which will automatically name them. If not using \code{"auto"}, the vector length should be equal to the total number of items/judges (not the total in the plot but the total in the dataset).}
+
+\item{manual.line.names}{A vector to indicate the individual names to give to the different response categories (or different category curves). Defaults to \code{"auto"}, which names categories from 1 to the number of categories. If not using \code{"auto"}, the vector supplied should be of the same length as the number of response categories (use the \code{name.for.reliability} argument to change it for reliability).}
 
 \item{overlay.reliability}{A logical to indicate whether to overlay the reliability function of the item (default is \code{FALSE}). If overlayed (\code{TRUE}), the reliability function will be contrast with the category curves by being in color if the category curves are in blackandwhite, and in black dashed if the category curves are in color.}
 
-\item{color.palette}{A character value to indicate the colour palette to use. Defaults to \code{"D3"} from "ggsci". Use \code{""} for the default of \code{ggplot2}. The palettes are supplied as arguments to \code{ggplot2}. See here for a list of palettes: \url{http://ggplot2.tidyverse.org/reference/scale_brewer.html}. In addition, most palettes from the pacakge \code{ggsci} are available (e.g., \code{"npg"}, \code{"aas"}, \code{"nejm"}, \code{"lancet"}, \code{"jama"}, \code{"d3"}). Use \code{vignette("ggsci")} for details. Make sure there are enough colors in the palette. Alternatively, you can pass a vector of colors.}
+\item{color.palette}{A character value to indicate the colour palette to use. Defaults to \code{"D3"} from "ggsci". Use \code{""} for the default of \code{ggplot2}. The palettes are supplied as arguments to \code{ggplot2}. See here for a list of palettes. In addition, most palettes from the package \code{ggsci} are available (e.g., \code{"npg"}, \code{"aas"}, \code{"nejm"}, \code{"lancet"}, \code{"jama"}, \code{"d3"}). Use \code{vignette("ggsci")} for details. Make sure there are enough colors in the palette. Alternatively, you can pass a vector of colors.}
 
 \item{category.name.for.legend}{A character to indicate how to call categories in the legend. Default to \code{"Category"} but for example you may try \code{"Cat."} or even \code{""} to save space.}
 
@@ -41,6 +68,8 @@ jcc.plot(jrt.object, judge = "all", labelled = T, greyscale = F,
 \item{theta.span}{A numeric indicating the maximum \eqn{\theta}.}
 
 \item{line.width}{A numeric indicating the width of the trace lines (default is \code{2.5}).}
+
+\item{line.opacity}{A numeric vector to indicate opacities for the different category lines. Defaults to \code{1}. Must be of length equal to the number of categories + 1 (for the reliability line, even if not plotted). For example if there are 5 response categories this vector should be of length 6.}
 
 \item{key.width}{A numeric to indicate the width of the legend key (default is \code{3}).}
 
@@ -96,8 +125,9 @@ jcc.plot(fit, 1)
 }
 \references{
 Chalmers, R., P. (2012). mirt: A Multidimensional Item Response Theory
-Package for the R Environment. \emph{Journal of Statistical Software, 48}(6), 1-29.
-\doi{10.18637/jss.v048.i06}
+Package for the R Environment. \emph{Journal of Statistical Software, 48}(6), 1-29. \doi{10.18637/jss.v048.i06}
 
 Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
+
+Myszkowski, N. (2021). Development of the R library “jrt”: Automated item response theory procedures for judgment data and their application with the consensual assessment techniques. \emph{Psychology of Aesthetics, Creativity and the Arts, 15}(3), 426-438. \doi{10.1037/aca0000287}
 }

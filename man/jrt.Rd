@@ -5,17 +5,33 @@
 \title{Fit ordinal IRT models on judgment data and return factor scores and
 statistics.}
 \usage{
-jrt(data, irt.model = "auto", summary = T,
-  selection.criterion = "AICC", response.categories = "auto",
-  remove.judges.with.unobserved.categories = F, additional.stats = F,
-  method.factor.scores = "EAP", return.mean.scores = T,
-  prefix.for.outputs = "Judgments", column.names = "Judge",
-  maximum.iterations = 2000, convergence.threshold = 0.001,
-  estimation.algorithm = "EM", status.verbose = F,
-  estimation.package.warnings = F, digits = 3, plots = T,
-  greyscale = F, progress.bar = T, method.item.fit = "X2",
-  select.variables.that.contain = NULL, silent = F, show.calls = F,
-  debug = F)
+jrt(
+  data,
+  irt.model = "auto",
+  summary = T,
+  selection.criterion = "AIC",
+  response.categories = "auto",
+  remove.judges.with.unobserved.categories = F,
+  additional.stats = F,
+  method.factor.scores = "EAP",
+  return.mean.scores = T,
+  prefix.for.outputs = "Judgments",
+  column.names = "Judge",
+  maximum.iterations = 2000,
+  convergence.threshold = 0.001,
+  estimation.algorithm = "EM",
+  status.verbose = F,
+  estimation.package.warnings = F,
+  digits = 3,
+  plots = T,
+  greyscale = F,
+  progress.bar = T,
+  method.item.fit = "X2",
+  select.variables.that.contain = NULL,
+  silent = F,
+  show.calls = F,
+  debug = F
+)
 }
 \arguments{
 \item{data}{A dataframe or matrix including the judgments to be scored. Note
@@ -61,8 +77,8 @@ Generalized Partial Credit Model)}
 displayed as messages (default is \code{TRUE}).}
 
 \item{selection.criterion}{A string with the criterion for the automatic
-selection. The default is the Akaike Information Criterion corrected
-(\code{AICC}), but other criteria may be used (\code{AIC}, \code{BIC} and
+selection. The default is the Akaike Information Criterion
+(\code{AIC}), but other criteria may be used (\code{AICc}, \code{BIC} and
 \code{SABIC}).}
 
 \item{response.categories}{A numeric vector to indicate the possible score
@@ -134,7 +150,7 @@ during the automatic model selection. Defaults to \code{TRUE}.}
 
 \item{method.item.fit}{A character value to indicate which fit statistic to use
 for the item fit output. Passed to the \code{itemfit} function of the
-\code{mirt} pacakge. Can be \code{S_X2}, \code{Zh}, \code{X2}, \code{G2},
+\code{mirt} package. Can be \code{S_X2}, \code{Zh}, \code{X2}, \code{G2},
 \code{PV_Q1}, \code{PV_Q1}, \code{X2*}, \code{X2*_df}, \code{infit}. Note that some are not be computable if there are missing data.}
 
 \item{select.variables.that.contain}{A character string to use as data the
@@ -187,4 +203,6 @@ Theory Package for the R Environment. \emph{Journal of Statistical Software,
 48}(6), 1-29. \doi{10.18637/jss.v048.i06}
 
 Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
+
+Myszkowski, N. (2021). Development of the R library “jrt”: Automated item response theory procedures for judgment data and their application with the consensual assessment techniques. \emph{Psychology of Aesthetics, Creativity and the Arts, 15}(3), 426-438. \doi{10.1037/aca0000287}
 }

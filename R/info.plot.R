@@ -13,7 +13,7 @@
 #' @param y.line.refers.to.secondary.axis A logical to indicate if the y.line should refer to a value on the secondary axis (\code{TRUE}, default) or the primary (\code{FALSE}). Only used if there is a secondary axis. The default is \code{TRUE} because threshold values for interpretation are more often used for reliability or standard error than information.
 #' @param name.for.y.line A character to indicate how to call the y line in the legend. Default is \code{"Threshold"}.
 #' @param greyscale A logical (default is \code{FALSE}) to indicate whether to use greyscale graphics (useful for publication). Uses variations in linetype as opposed to variations in line colors.
-#' @param color.palette A character value to indicate the colour palette to use. Defaults to \code{"D3"} from "ggsci". Use \code{""} for the default of \code{ggplot2}. The palettes are supplied as arguments in the \code{scale_fill_brewer()} function of \code{ggplot2}. See here for a list of palettes: \url{http://ggplot2.tidyverse.org/reference/scale_brewer.html}. In addition, most palettes from the pacakge \code{ggsci} are available (e.g., \code{"npg"}, \code{"aas"}, \code{"nejm"}, \code{"lancet"}, \code{"jama"}, \code{"d3"}). Use \code{vignette("ggsci")} for details.
+#' @param color.palette A character value to indicate the colour palette to use. Defaults to \code{"D3"} from "ggsci". Use \code{""} for the default of \code{ggplot2}. The palettes are supplied as arguments in the \code{scale_fill_brewer()} function of \code{ggplot2}. In addition, most palettes from the package \code{ggsci} are available (e.g., \code{"npg"}, \code{"aas"}, \code{"nejm"}, \code{"lancet"}, \code{"jama"}, \code{"d3"}). Use \code{vignette("ggsci")} for details.
 #' @param line.width A numeric indicating the width for the information function curve (default is \code{2.5}).
 #' @param key.width A numeric to indicate the width of the legend key (default is \code{3}).
 #' @param legend.position A character string or vector of coordinates to position the legend key. Defaults to \code{"right"}. Other possibilities include notably \code{"bottom"}.
@@ -27,11 +27,9 @@
 #' @param precision A numeric to indicate the degree of precision used to plot the curves. Higher values will increase the accuracy of the graph and make the curves look smoother, but the data generated to plot the graph will be bigger, which will slow down the function. Lower values will do the opposite. Values between \code{10} and \code{100} are recommended, \code{20} is the default and sufficient for most uses.
 #' @param mirt.object.input A logical allowing to input directly an \code{mirt} object as a \code{jrt.object} argument, even though this should be detected automatically. See \code{mirt} package documentation, and note that this is a secondary use that may lead to inconsistent results at this point.
 #' @param item For convenience, this argument, more standard to IRT packages, can be used instead of the \code{judge} argument.
-#' @references
-#' Chalmers, R., P. (2012). mirt: A Multidimensional Item Response Theory
-#' Package for the R Environment. \emph{Journal of Statistical Software, 48}(6), 1-29.
-#' \doi{10.18637/jss.v048.i06}
+#' @references Chalmers, R., P. (2012). mirt: A Multidimensional Item Response Theory Package for the R Environment. \emph{Journal of Statistical Software, 48}(6), 1-29. \doi{10.18637/jss.v048.i06}
 #' @references Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
+#' @references Myszkowski, N. (2021). Development of the R library “jrt”: Automated item response theory procedures for judgment data and their application with the consensual assessment techniques. \emph{Psychology of Aesthetics, Creativity and the Arts, 15}(3), 426-438. \doi{10.1037/aca0000287}
 #' @return A plot of the information, reliability or standard error function.
 #' @import directlabels
 #' @import mirt
