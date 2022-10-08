@@ -1,3 +1,9 @@
+# jrt 1.1.1
+
+* Fixes issue in `jrt()` with slope-constrained models when ordinal scales start with 0 rather than 1.
+* Added a new example dataset with missing data.
+* Patched issues with displaying of amount of missing data.
+
 # jrt 1.1.0
 
 * Fixes for compatibility with recent versions of the `mirt` package.

@@ -410,28 +410,10 @@ mirt::anova(model1@mirt.object, model2@mirt.object, verbose = F) #Comparing them
 
 ## Dealing with missing data
 
-For this example, let's add partially missing data...
+The `ratings_missing` data is a simulated dataset with a planned missingness design. `jrt` will be default impute missing data for partially missing data, but can be easily retrieved.
 
 ```{r}
-data[1, 1] <- NA # Add missing data for case 1 / judge 1 (partial missing)
-```
-
-...and completely missing case data.
-
-```{r}
-data[3,] <- NA # All case 3 is missing (complete missing)
-```
-
-The data now looks like this:
-
-```{r}
-head(data)
-```
-
-`jrt` will be default impute missing data for partially missing data, but can be easily retrieved.
-
-```{r}
-fit <- jrt(data, irt.model = "PCM", silent = T) #fit model
+fit <- jrt(ratings_missing, irt.model = "PCM", silent = T) #fit model
 ```
 
 The `fit@output.data` contains both the original data and the data with imputation (variable names are tagged "original"" and "imputed"), as well as the factor scores.

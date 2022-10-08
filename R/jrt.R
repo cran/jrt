@@ -201,6 +201,9 @@ jrt <- function(data,
       }}}}}}}}
 
 
+# Defaults not specificed as arguments
+  missing.data.message <- TRUE
+
 # Silent mode
   if(silent == T){
     summary <- FALSE
@@ -209,6 +212,7 @@ jrt <- function(data,
     estimation.package.warnings <- FALSE
     additional.stats <- FALSE
     progress.bar <- FALSE
+    missing.data.message <- FALSE
   }
 
 
@@ -340,7 +344,11 @@ model.for.constrained.equal.slopes.incomplete.judges.removed <- paste(sep = "", 
 # For the generalized rating scale (uses the GPCMirt model, with category structure constrained)
 ### Base example : mirt::mirt(data, item = "gpcmIRT", model = "G = 1-6 \n CONSTRAIN = (1-6, b1),(1-6, b2), (1-6, b3), (1-6, b4) \n FREE = (1-6, c)")
 
-parameters.to.fix.in.category.structure <- response.categories[1:length(response.categories)-1]
+
+# DEPRECATED
+#parameters.to.fix.in.category.structure <- response.categories[1:length(response.categories)-1]
+# FIX for missing data
+parameters.to.fix.in.category.structure <- seq(from = 1, to = length(response.categories) - 1)
 category.structure.constrain <- paste(sep="", "(1-", number.of.judges.kept, ", b", parameters.to.fix.in.category.structure, ")", collapse = ",")
 category.structure.constrain <- paste(sep="", "CONSTRAIN = ", category.structure.constrain)
 model.for.constrained.category.structure <- paste(sep = "",
@@ -749,7 +757,7 @@ positionofbestfittingmodelinlist <- which.min(comparisonstatistic)
   if (debug == T) {
     message(paste0("\nDEBUG| Fitting main model\n",
                    "DEBUG| data= ", dim(data)[1], " rows x ", dim(data)[2], " columns\n",
-                   "DEBUG| model= ", structural.model,"\n",
+                   "DEBUG| model= ", structural.model, "\n",
                    "DEBUG| itemtype= ", irt.modelnameformirt,"\n\n"))
   }
 
@@ -924,10 +932,13 @@ missingness.logical.matrix <- is.na.data.frame(as.data.frame(data))
 if (sum(missingness.logical.matrix) > 0) {
   # Number of products with missing data
   number.of.incomplete.observations <- sum(missingness.logical.matrix)
-  percent.of.incomplete.observations <- percent(x = number.of.incomplete.observations/sample.size)
+  maximum.observations <- dim(data)[1]*dim(data)[2]
+  percent.of.incomplete.observations <- percent(x = number.of.incomplete.observations/maximum.observations)
 
   # Message to signal inputation
-  message(paste(sep = "" , "\nThere are ",number.of.incomplete.observations," (", percent.of.incomplete.observations, ") cases with partially missing observations! Inputing..."))
+  if (missing.data.message == T) {
+    message(paste(sep = "" , "\nThere are ",number.of.incomplete.observations," (", percent.of.incomplete.observations, ") missing observations! Inputing..."))
+  }
 
   # Inpute with mirt
   factorscoresmatrixforinpute <- mirt::fscores(object = model, method = methodfactorscoresformirt)
@@ -1219,7 +1230,7 @@ methods::setMethod("anova", "jrt", function(object) {mirt::anova(object@mirt.obj
 # Documentation for data "ratings"
 #'A simulated dataset with 300 products judged by 6 judges.
 #'
-#' @format A data frame with 300 rows and 6 columns:
+#' @format A data.frame with 300 rows and 6 columns:
 #' \describe{
 #'   \item{Judge_1}{Judgments of judge 1}
 #'   \item{Judge_2}{Judgments of judge 2}
@@ -1229,6 +1240,19 @@ methods::setMethod("anova", "jrt", function(object) {mirt::anova(object@mirt.obj
 #'   \item{Judge_6}{Judgments of judge 6}
 #' }
 "ratings"
+
+# Documentation for data "ratings"
+#'A simulated dataset with 350 cases judged by 5 judges, using a planned missingness design.
+#'
+#' @format A data.frame with 350 rows (cases) and 5 columns (judges):
+#' \describe{
+#'   \item{Judge_1}{Judgments of judge 1}
+#'   \item{Judge_2}{Judgments of judge 2}
+#'   \item{Judge_3}{Judgments of judge 3}
+#'   \item{Judge_4}{Judgments of judge 4}
+#'   \item{Judge_5}{Judgments of judge 5}
+#' }
+"ratings_missing"
 
 #### CODE TO SIMULATE RATINGS DATASET
 # set.seed(123)

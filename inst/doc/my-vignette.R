@@ -168,16 +168,7 @@ model2 <- jrt(data, "CGRM", silent = T) # Fitting a Constrained GRM
 mirt::anova(model1@mirt.object, model2@mirt.object, verbose = F) #Comparing them
 
 ## -----------------------------------------------------------------------------
-data[1, 1] <- NA # Add missing data for case 1 / judge 1 (partial missing)
-
-## -----------------------------------------------------------------------------
-data[3,] <- NA # All case 3 is missing (complete missing)
-
-## -----------------------------------------------------------------------------
-head(data)
-
-## -----------------------------------------------------------------------------
-fit <- jrt(data, irt.model = "PCM", silent = T) #fit model
+fit <- jrt(ratings_missing, irt.model = "PCM", silent = T) #fit model
 
 ## -----------------------------------------------------------------------------
 fit <- mirt::mirt(data = mirt::Science, 
