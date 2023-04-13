@@ -149,7 +149,7 @@ jcc.plot(fit, facet.cols = 2)
 ```
 
 
-- Plot the category curves in black and white with `greyscale = TRUE`...
+- Plot the category curves in black and white with `greyscale = TRUE` (this uses linetypes instead of colors)...
 
 ```{r}
 jcc.plot(fit, 1, greyscale = T)
@@ -180,11 +180,11 @@ jcc.plot(fit, overlay.reliability = T, labelled = F, legend.position = "bottom")
 jcc.plot(fit, 2, column.names = "Expert")
 ```
 
-- Overriding the automatic naming of judge/items (you must name *all* items/judges, not only the ones you are plotting !) and response categories (note: works with labels or legend).
+- Overriding the automatic naming of judge/items (you must name *all* items/judges, not only the ones you are plotting !) and response categories (note: works with labels or legend). See here, we want to plot experts C and D (3rd and 4th column) but we still have to provide names for all.
 
 ```{r}
-jcc.plot(fit,
-         manual.facet.names = c("A", "B", "C", "D", "E", "F"),
+jcc.plot(fit, 3:4,
+         manual.facet.names = paste("Expert ", c("A", "B", "C", "D", "E", "F")),
          manual.line.names = c("Totally disagree", "Disagree", "Neither agree\nnor disagree", "Agree", "Totally agree"),
          labelled = F)
 ```
@@ -210,7 +210,7 @@ jcc.plot(fit, 1:4,
          )
 ```
 
-- Change the colors of the curves with `color.palette` (uses the RColorBrewer palettes in `ggplot2`), the background colors with `theme` (uses the `ggplot2` themes, use `bw`, `light`, `grey`, etc.), and the line size with `line.width`.
+- Change the colors of the curves with `color.palette` (uses the RColorBrewer palettes in `ggplot2`), the background colors with `theme` (uses the `ggplot2` themes, like `bw`, `light`, `grey`, etc.), and the line size with `line.width`.
 
 ```{r}
 jcc.plot(fit, 1, color.palette = "Dark2", theme = "classic", line.width = 1.5, font.family = "serif", overlay.reliability = T, name.for.reliability = "Reliability")
@@ -230,10 +230,10 @@ jcc.plot(fit, 1, color.palette = "Blues", theme = "grey", line.width = 3, labell
 ```
 
 
-I've also integrated the colors of the ggsci package (`npg`, `aaas`, `nejm`, `lancet`, `jama`, `jco`, `D3`, `locuszoom`, `igv`, `uchicago`, `startrek`, `tron`, `futurama`), but be careful, not all may have sufficient color values!
+I've also integrated the colors of the `ggsci` package (`npg`, `aaas`, `nejm`, `lancet`, `jama`, `jco`, `D3`, `locuszoom`, `igv`, `uchicago`, `startrek`, `tron`, `futurama`), but be careful, not all may have sufficient color values!
 
 ```{r}
-jcc.plot(fit, 1, color.palette = "aaas", overlay.reliability = T)
+jcc.plot(fit, 1, color.palette = "npg", overlay.reliability = T)
 ```
 
 
@@ -423,7 +423,7 @@ To retrieved them separately, the imputed data can be retrieved with `fit@impute
 
 ## Just using `jrt` for plotting?
 
-You may want to use `jrt` as a plotting device only. That's ok, because `jrt` plotting functions will accept `mirt` objects as input. They should be detected automatically as such.
+You may want to use `jrt` as a plotting device only. That's ok, because `jrt` plotting functions will accept `mirt` objects as input. They should be detected automatically as such (unidimensional models only).
 
 Let's fit a Generalized Partial Credit Model with `mirt` for this example.
 
@@ -434,7 +434,7 @@ fit <- mirt::mirt(data = mirt::Science,
                   verbose = F)
 ```
 
-Now `jcc.plot()` can plot the category curves. Note that the default colmun names is now "Item".
+Now `jcc.plot()` can plot the category curves. Note that the default column names is now automatically switched to "Item".
 
 ```{r}
 jcc.plot(fit)
@@ -446,7 +446,7 @@ For the information plot:
 info.plot(fit)
 ```
 
-For convenience the argumemnt `item` can be used instead of `judge` in both plotting functions:
+For convenience the argument `item` can be used instead of `judge` in both plotting functions:
 
 ```{r}
 jcc.plot(fit, item = 3)

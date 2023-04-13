@@ -78,8 +78,8 @@ displayed as messages (default is \code{TRUE}).}
 
 \item{selection.criterion}{A string with the criterion for the automatic
 selection. The default is the Akaike Information Criterion
-(\code{AIC}), but other criteria may be used (\code{AICc}, \code{BIC} and
-\code{SABIC}).}
+(\code{AIC}), but other criteria may be used (\code{HQ} for Hannan-Quinn Criterion, \code{BIC} for Bayesian Information Criterion and
+\code{SABIC} for Sample-Adjusted Bayesian Information Criterion).}
 
 \item{response.categories}{A numeric vector to indicate the possible score
 values. For example, use \code{1:7} for a Likert-type score from 1 to 7.
@@ -204,5 +204,5 @@ Theory Package for the R Environment. \emph{Journal of Statistical Software,
 
 Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
 
-Myszkowski, N. (2021). Development of the R library “jrt”: Automated item response theory procedures for judgment data and their application with the consensual assessment techniques. \emph{Psychology of Aesthetics, Creativity and the Arts, 15}(3), 426-438. \doi{10.1037/aca0000287}
+Myszkowski, N. (2021). Development of the R library \code{jrt}: Automated item response theory procedures for judgment data and their application with the consensual assessment techniques. \emph{Psychology of Aesthetics, Creativity and the Arts, 15}(3), 426-438. \doi{10.1037/aca0000287}
 }

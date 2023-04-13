@@ -1,3 +1,8 @@
+# jrt 1.1.2
+
+- Hannan–Quinn (HQ) Criterion is now in outputs, and can now be used for automatic selection criterion.
+- Vignette improvements for clarity.
+
 # jrt 1.1.1
 
 * Fixes issue in `jrt()` with slope-constrained models when ordinal scales start with 0 rather than 1.

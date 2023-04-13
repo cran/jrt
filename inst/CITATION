@@ -1,16 +1,15 @@
 citHeader("To cite jrt in publications use:")
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title        = "Development of the R library jrt: Automated item response theory procedures for judgment data and their application with the consensual assessment technique
 ",
-  author       = personList(as.person("Nils Myszkowski")),
+  author       = c(as.person("Nils Myszkowski")),
   journal      = "Psychology of Aesthetics, Creativity and the Arts",
   year         = "2021",
   volume       = "15",
   number       = "3",
   pages        = "426-438",
   url          = "http://dx.doi.org/10.1037/aca0000287",
-
   textVersion  =
   paste("Myszkowski, N. (2021).",
         "Development of the R library jrt: Automated item response theory procedures for judgment data and their application with the consensual assessment technique.",

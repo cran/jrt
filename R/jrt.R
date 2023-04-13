@@ -49,8 +49,8 @@
 #'   displayed as messages (default is \code{TRUE}).
 #' @param selection.criterion A string with the criterion for the automatic
 #'   selection. The default is the Akaike Information Criterion
-#'   (\code{AIC}), but other criteria may be used (\code{AICc}, \code{BIC} and
-#'   \code{SABIC}).
+#'   (\code{AIC}), but other criteria may be used (\code{HQ} for Hannan-Quinn Criterion, \code{BIC} for Bayesian Information Criterion and
+#'   \code{SABIC} for Sample-Adjusted Bayesian Information Criterion).
 #' @param response.categories A numeric vector to indicate the possible score
 #'   values. For example, use \code{1:7} for a Likert-type score from 1 to 7.
 #'   The default, \code{auto} automatically detects the possible values based on
@@ -124,7 +124,7 @@
 #' Theory Package for the R Environment. \emph{Journal of Statistical Software,
 #' 48}(6), 1-29. \doi{10.18637/jss.v048.i06}
 #' @references Myszkowski, N., & Storme, M. (2019). Judge Response Theory? A call to upgrade our psychometrical account of creativity judgments. \emph{Psychology of Aesthetics, Creativity and the Arts, 13}(2), 167-175. \doi{10.1037/aca0000225}
-#' @references Myszkowski, N. (2021). Development of the R library “jrt”: Automated item response theory procedures for judgment data and their application with the consensual assessment techniques. \emph{Psychology of Aesthetics, Creativity and the Arts, 15}(3), 426-438. \doi{10.1037/aca0000287}
+#' @references Myszkowski, N. (2021). Development of the R library \code{jrt}: Automated item response theory procedures for judgment data and their application with the consensual assessment techniques. \emph{Psychology of Aesthetics, Creativity and the Arts, 15}(3), 426-438. \doi{10.1037/aca0000287}
 #'
 #' @import mirt
 #' @importClassesFrom mirt SingleGroupClass
@@ -493,7 +493,7 @@ if (progress.bar == T) {
                                        warn = F,
                                        message = F))
       modelAIC <- as.numeric(fit@Fit$AIC)
-      modelAICc <- as.numeric(fit@Fit$AICc)
+      modelHQ <- as.numeric(fit@Fit$HQ)
       modelBIC <- as.numeric(fit@Fit$BIC)
       modelSABIC <- as.numeric(fit@Fit$SABIC)
       if (selection.criterion == "AIC" | selection.criterion == "aic") {
@@ -514,11 +514,11 @@ if (progress.bar == T) {
         citationofcomparisonstatistic <- "citationneeded" #####!!!!
         comparisonstatistic[i] <- as.numeric(modelSABIC)
       }
-    if (selection.criterion == "AICc" | selection.criterion == "aicc" | selection.criterion == "AICC") {
-      fullnameofcomparisonstatistic <- "Akaike Information Criterion corrected"
-      shortnameofcomparisonstatistic <- "AICc"
+    if (selection.criterion == "HQ" | selection.criterion == "hq") {
+      fullnameofcomparisonstatistic <- "Hannan-Quinn (HQ) Criterion"
+      shortnameofcomparisonstatistic <- "HQ"
       citationofcomparisonstatistic <- "citationneeded" #####!!!!
-      comparisonstatistic[i] <- as.numeric(modelAICc)
+      comparisonstatistic[i] <- as.numeric(modelHQ)
     }
       if (progress.bar == T) {
         utils::setTxtProgressBar(pb,i)
@@ -795,7 +795,7 @@ positionofbestfittingmodelinlist <- which.min(comparisonstatistic)
   modelconverged <- model@OptimInfo$converged
   ## Fit indices
   modelAIC <- model@Fit$AIC
-  modelAICc <- model@Fit$AICc
+  modelHQ <- model@Fit$HQ
   modelBIC <- model@Fit$BIC
   modelSABIC <- model@Fit$BIC
   modelDIC <- model@Fit$DIC
@@ -825,8 +825,8 @@ positionofbestfittingmodelinlist <- which.min(comparisonstatistic)
   #Create AIC object name with IRT model name
   AICname <- paste(sep="", "AIC.", irt.model)
   assign(AICname, modelAIC)
-  AICcname <- paste(sep="", "AICc.", irt.model)
-  assign(AICcname, modelAICc)
+  HQname <- paste(sep="", "HQ.", irt.model)
+  assign(HQname, modelHQ)
   BICname <- paste(sep="", "BIC.", irt.model)
   assign(BICname, modelBIC)
   SABICname <- paste(sep="", "SABIC.", irt.model)
@@ -953,13 +953,13 @@ if (sum(missingness.logical.matrix) > 0) {
 
   objectstoreturn <- list(Factor.Scores = factorscores,
                           get(AICname),
-                          get(AICcname),
+                          get(HQname),
                           get(BICname),
                           get(SABICname)
   )
   names(objectstoreturn) <- c("Factor.Scores",
                               AICname,
-                              AICcname,
+                              HQname,
                               BICname,
                               SABICname
   )
@@ -989,11 +989,12 @@ if (number.of.judges.removed.for.outputs > 0) {
                   "- Estimation package: ", estimationpackage, " ",apastyleintextcitationofestimationpackage," | ", doiofestimationpackage,"\n",
                   "- Estimation algorithm: ", estimationalgorithmfullname, " ", authorofestimationalgorithm, " | ", doiofestimationalgorithm, "\n",
 
-                  "- Method of factor scoring: ", methodfactorscoresfullname,"\n",
+                  "- Factor scoring method: ", methodfactorscoresfullname,"\n",
                   "- AIC = ", round(as.numeric(modelAIC), digits = digits)," |",
-                  " AICc = ", round(as.numeric(modelAICc), digits = digits)," |",
                   " BIC = ", round(as.numeric(modelBIC), digits = digits)," |",
-                  " SABIC = ", round(as.numeric(modelSABIC), digits = digits),"\n",
+                  " SABIC = ", round(as.numeric(modelSABIC), digits = digits)," |",
+                  " HQ = ", round(as.numeric(modelHQ), digits = digits), "\n",
+
                   "\n-== Model-based reliability ==-\n",
                   "- Empirical reliability | Average in the sample: ", numformat(empiricalreliability, digits), "\n",
                   "- Expected reliability | Assumes a Normal(0,1) prior density: ", numformat(averagedensity, digits), "\n"#,

@@ -58,8 +58,8 @@ jcc.plot(fit, overlay.reliability = T, labelled = F, legend.position = "bottom")
 jcc.plot(fit, 2, column.names = "Expert")
 
 ## -----------------------------------------------------------------------------
-jcc.plot(fit,
-         manual.facet.names = c("A", "B", "C", "D", "E", "F"),
+jcc.plot(fit, 3:4,
+         manual.facet.names = paste("Expert ", c("A", "B", "C", "D", "E", "F")),
          manual.line.names = c("Totally disagree", "Disagree", "Neither agree\nnor disagree", "Agree", "Totally agree"),
          labelled = F)
 
@@ -85,7 +85,7 @@ jcc.plot(fit, 1:3, labelled = F, line.opacity = c(0,0,0,1,0,0))
 jcc.plot(fit, 1, color.palette = "Blues", theme = "grey", line.width = 3, labelled = F)
 
 ## -----------------------------------------------------------------------------
-jcc.plot(fit, 1, color.palette = "aaas", overlay.reliability = T)
+jcc.plot(fit, 1, color.palette = "npg", overlay.reliability = T)
 
 ## -----------------------------------------------------------------------------
 info.plot(fit, 1)
